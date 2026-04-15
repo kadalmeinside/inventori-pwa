@@ -176,7 +176,7 @@ const flash = computed(() => page.props.flash ?? {})
 const showLogoutConfirm = ref(false)
 
 const confirmLogout = () => {
-  router.post(route('logout'))
+  router.delete(route('logout'))
 }
 
 const navItems = [
