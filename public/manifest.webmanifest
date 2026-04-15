@@ -1,0 +1,61 @@
+{
+  "name": "Inventori IMS",
+  "short_name": "Inventori",
+  "description": "Multi-warehouse Inventory Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f2f4f8",
+  "theme_color": "#f2f4f8",
+  "icons": [
+    {
+      "src": "/logo-inventory.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-inventory.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Home",
+      "description": "View inventory dashboard",
+      "url": "/",
+      "icons": [{ "src": "/logo-inventory.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Stock",
+      "short_name": "Stock",
+      "description": "Manage stock levels",
+      "url": "/stocks",
+      "icons": [{ "src": "/logo-inventory.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Transfers",
+      "short_name": "Transfer",
+      "description": "Manage inter-warehouse transfers",
+      "url": "/transfers",
+      "icons": [{ "src": "/logo-inventory.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "en"
+}
