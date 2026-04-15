@@ -1,58 +1,90 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+  <img src="public/logo-inventory.png" alt="Inventori Logo" width="120" />
+  <h1>Inventori PWA</h1>
+  <p>🚀 Modern Multi-Warehouse Inventory Management System</p>
+  
+  <p>
+    <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel" />
+    <img src="https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D" alt="Vue.js" />
+    <img src="https://img.shields.io/badge/Inertia.js-9553E9?style=for-the-badge&logo=inertia&logoColor=white" alt="Inertia.js" />
+    <img src="https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
+  </p>
+</div>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## ✨ Overview
 
-## About Laravel
+**Inventori PWA** adalah sistem manajemen inventaris gudang berbasis website modern dengan dukungan Progressive Web App (PWA). Sistem ini dirancang untuk menangani operasional multi-gudang (Gudang Pusat dan Cabang) secara tertutup, aman, dan meminimalisir kesalahan input melalui sistem *database transactions / locking*.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Secara visual, aplikasi ini menggunakan gaya desain independen dengan konsep **iOS Aesthetic & Light Glassmorphism**, tanpa bergantung pada utility framework seperti TailwindCSS — memastikan performa load yang tinggi dan kontrol penuh terhadap fungsionalitas UI.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🛠 Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend:** Laravel 11, PHP 8.2+
+- **Frontend SPA:** Vue 3 (Composition API), Inertia.js
+- **Styling:** Custom Vanilla CSS (BEM Architecture, CSS Variables, Glassmorphism)
+- **PWA:** `vite-plugin-pwa` (Service Worker, Offline Fallback, App Manifest)
+- **Database:** MySQL / SQLite
+- **Security:** CSRF Protection, Rate Limiting, Atomic Database Locks
 
-## Learning Laravel
+## 🔥 Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **📦 Multi-Warehouse Isolation:** Mendukung gudang Pusat (Main) dan berbagai Cabang. Admin Cabang hanya bisa mengakses dan melihat stok di cabang masing-masing.
+- **🔄 Inter-Warehouse Transfers:** Sistem pengiriman stok parsial antar gudang (Pusat ↔ Cabang atau Cabang ↔ Cabang) lengkap dengan status Pending/Completed/Canceled.
+- **📖 Audit Trail History:** Seluruh arus barang (Stock In, Stock Out, Transfer) dicatat secara presisi untuk pertanggungjawaban audit.
+- **📱 PWA Ready:** Dapat diinstal selayaknya aplikasi *native* di Android, iOS, maupun Desktop (Google Chrome/Edge).
+- **🛡 Enterprise Security:** Transaksi pengubahan stok dibungkus dalam `DB::transaction` dan *Pessimistic Locking* (`lockForUpdate`) untuk menghindari celah *Race Condition*.
+- **🎨 Custom Design System:** Interface sangat responsif dengan animasi transisi yang mulus, modal dinamis, dan toast notification modern.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Instalasi & Menjalankan Service
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Panduan untuk menjalankan project ini di komputer lokal Anda:
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+### 1. Clone Repository & Install Dependencies
 ```bash
-composer require laravel/boost --dev
+git clone https://github.com/kadalmeinside/inventori-pwa.git
+cd inventori-pwa
 
-php artisan boost:install
+# Install PHP dependencies
+composer install
+
+# Install Javascript dependencies
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Environment Configuration
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+Edit file `.env` dan sesuaikan koneksi database Anda.
 
-## Contributing
+### 3. Database Migration & Seeding
+Menjalankan migrasi dan seeding data awal (Role, Gudang, dan Akun Default):
+```bash
+php artisan migrate:fresh --seed
+```
+*Note: Akun super admin default akan digenerate, periksa output terminal atau file seeder untuk kredensial default.*
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. Build PWA & Assets
+Oleh karena project menggunakan module PWA, direkomendasikan untuk me-*running build* minimal satu kali untuk mem-build *Service Worker*.
+```bash
+npm run build
+```
+*(Atau gunakan `npm run dev` untuk hot-module-replacement selama masa development)*
 
-## Code of Conduct
+### 5. Start Local Server
+```bash
+php artisan serve
+```
+Akses aplikasi melalui browser di `http://localhost:8000`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🔒 Konfigurasi Produksi
 
-## Security Vulnerabilities
+Untuk mendeploy ke Production, pastikan beberapa environment berikut di atur pada file `.env`:
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- Aplikasi **WAJIB** dihosting dengan sertifikat SSL (HTTPS). PWA Service Worker (fitur Install App) tidak akan memicu aktif apabila tidak di dalam protokol `https://` (kecuali di `localhost`).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 👨‍💻 Kontributor
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Di-develop dan di-maintain secara mandiri untuk standar kontrol inventaris. All rights reserved.
