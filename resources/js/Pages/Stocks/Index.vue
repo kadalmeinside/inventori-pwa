@@ -19,15 +19,28 @@
               @keyup.enter="performSearch"
             />
           </div>
-          <button class="btn-ios btn-ios-primary btn-receive" @click="openStockInModal">
+          <template v-if="page.props.auth.user.role === 'super_admin'">
+            <div class="search-wrap" v-if="viewMode !== 'global'">
+              <select v-model="warehouseId" @change="performSearch" class="search-input" style="padding-left: 1rem;">
+                <option value="">All Branches</option>
+                <option v-for="wh in warehouses" :key="wh.id" :value="wh.id">{{ wh.name }}</option>
+              </select>
+            </div>
+            <button class="btn-ios btn-ios-glass" @click="toggleGlobalView" :class="{ 'btn-active': viewMode === 'global' }">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+              <span class="btn-text">Global Summary</span>
+            </button>
+          </template>
+
+          <button v-if="page.props.auth.user.role !== 'super_admin'" class="btn-ios btn-ios-primary btn-receive" @click="openStockInModal">
             <svg class="btn-receive-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
             <span class="btn-text">Receive Stock</span>
           </button>
         </div>
       </div>
 
-      <!-- ─── Table ────────────────────────────────────────────────────── -->
-      <div class="glass-card">
+      <!-- ─── Table / Global View ──────────────────────────────────────── -->
+      <div class="glass-card" v-if="viewMode !== 'global'">
         <!-- Desktop Table -->
         <div class="table-wrap hidden md:block">
           <table class="ios-table">
@@ -94,6 +107,35 @@
           </template>
         </div>
       </div>
+
+      <!-- ─── Global Summary View ──────────────────────────────────────── -->
+      <div class="global-grid" v-else>
+        <div v-for="entry in stocks.data" :key="entry.product_id" class="glass-card global-card">
+          <div class="global-card__header">
+            <div class="global-card__icon" :class="entry.quantity <= entry.product.min_stock ? 'icon-alert' : 'icon-ok'">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            </div>
+            <div class="global-card__badge" :class="entry.quantity <= entry.product.min_stock ? 'badge-alert' : 'badge-ok'">
+              {{ entry.quantity }} {{ entry.product.unit }}
+            </div>
+          </div>
+          <div class="global-card__body">
+            <div class="gc-sku">{{ entry.product.sku }}</div>
+            <h3 class="gc-name">{{ entry.product.name }}</h3>
+            <div class="gc-category">{{ entry.product.category?.name || 'Uncategorized' }}</div>
+          </div>
+        </div>
+        <div v-if="stocks.data.length === 0" class="empty-cell" style="grid-column: 1 / -1">No stock data found.</div>
+      </div>
+
+      <!-- Pagination for Global View -->
+      <div v-if="viewMode === 'global' && stocks.links.length > 3" class="pagination" style="margin-top: 2rem;">
+        <template v-for="(link, i) in stocks.links" :key="i">
+          <span v-if="link.url === null" class="page-btn page-btn--disabled" v-html="link.label" />
+          <Link v-else :href="link.url" class="page-btn" :class="link.active ? 'page-btn--active' : ''" v-html="link.label" />
+        </template>
+      </div>
+
     </div>
 
     <!-- ─── Stock Out Modal ────────────────────────────────────────────── -->
@@ -162,7 +204,10 @@
         <form @submit.prevent="submitStockIn" class="modal-form">
           <div class="field">
             <InputLabel for="in_warehouse" value="Destination Warehouse" />
-            <select id="in_warehouse" v-model="inForm.warehouse_id" class="input-ios" required>
+            <div v-if="page.props.auth.user.role !== 'super_admin'" class="input-ios input-ios--locked">
+              {{ warehouses.find(w => w.id === page.props.auth.user.warehouse_id)?.name ?? 'Your Warehouse' }}
+            </div>
+            <select v-else id="in_warehouse" v-model="inForm.warehouse_id" class="input-ios" required>
               <option disabled value="">Select warehouse…</option>
               <option v-for="wh in warehouses" :key="wh.id" :value="wh.id">{{ wh.name }}</option>
             </select>
@@ -212,7 +257,21 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 const props = defineProps({ stocks: Object, filters: Object, warehouses: Array, products: Array });
 const page  = usePage();
 const search = ref(props.filters.search || '');
-const performSearch = () => router.get(route('stocks.index'), { search: search.value }, { preserveState: true, replace: true });
+const warehouseId = ref(props.filters.warehouse_id || '');
+const viewMode = ref(props.filters.view_mode || 'default');
+
+const performSearch = () => {
+    router.get(route('stocks.index'), {
+        search: search.value,
+        warehouse_id: warehouseId.value,
+        view_mode: viewMode.value,
+    }, { preserveState: true, replace: true });
+};
+
+const toggleGlobalView = () => {
+    viewMode.value = viewMode.value === 'global' ? 'default' : 'global';
+    performSearch();
+};
 
 const showModal = ref(false), showInModal = ref(false);
 const selectedEntry = ref(null);
@@ -244,6 +303,25 @@ const submitStockIn = () => inForm.post(route('stocks.in'), { preserveScroll: tr
 
 <style scoped>
 .page-wrap { padding: 2rem 1.25rem 5rem; max-width: 1100px; margin: 0 auto; }
+
+.btn-active { background: #007AFF !important; border-color: #007AFF !important; color: white !important; box-shadow: 0 4px 12px rgba(0,122,255,0.4) !important; }
+.btn-active .btn-text { max-width: 120px !important; opacity: 1 !important; font-size: 0.875rem !important; }
+
+/* Global Grid */
+.global-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.global-card { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+.global-card__header { display: flex; align-items: flex-start; justify-content: space-between; }
+.global-card__icon { width: 3rem; height: 3rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; }
+.icon-ok { background: rgba(52,199,89,0.12); color: #28a745; border: 1px solid rgba(52,199,89,0.25); }
+.icon-alert { background: rgba(255,59,48,0.12); color: #FF3B30; border: 1px solid rgba(255,59,48,0.25); }
+.global-card__badge { padding: 0.35rem 0.75rem; border-radius: 999px; font-weight: 700; font-family: var(--font-mono); font-size: 0.9rem; border: 1px solid; }
+.badge-ok { background: rgba(52,199,89,0.10); color: #1a7a34; border-color: rgba(52,199,89,0.25); }
+.badge-alert { background: rgba(255,59,48,0.10); color: #FF3B30; border-color: rgba(255,59,48,0.25); }
+.global-card__body { display: flex; flex-direction: column; gap: 0.25rem; }
+.gc-sku { font-family: var(--font-mono); font-size: 0.75rem; color: rgba(0,0,0,0.5); letter-spacing: 0.04em; }
+.gc-name { font-size: 1.125rem; font-weight: 700; color: rgba(0,0,0,0.85); margin: 0; line-height: 1.2; }
+.gc-category { font-size: 0.75rem; color: rgba(0,0,0,0.45); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.25rem; }
+
 
 /* Mobile-first layout for Header */
 .page-header { display: grid; grid-template-columns: 1fr auto; grid-template-areas: 'titles button' 'search search'; gap: 1rem; margin-bottom: 1.5rem; }

@@ -15,12 +15,19 @@ class StockController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+        $isGlobal = $request->input('view_mode') === 'global' && $user->role->value === 'super_admin';
+        $warehouseId = $request->input('warehouse_id');
         
-        $query = StockEntry::with(['product', 'warehouse'])
+        $query = StockEntry::with(['product.category', 'warehouse'])
             ->when($user->role->value === 'branch_admin', function ($q) use ($user) {
                 // Branch Admin data isolation
                 $q->where('warehouse_id', $user->warehouse_id);
             });
+            
+        // Super Admin Filter
+        if ($user->role->value === 'super_admin' && !$isGlobal && $warehouseId) {
+            $query->where('warehouse_id', $warehouseId);
+        }
             
         // Optional Search Filtering
         if ($search = $request->input('search')) {
@@ -30,13 +37,19 @@ class StockController extends Controller
             });
         }
         
-        $stocks = $query->orderBy('warehouse_id')->paginate(15)->withQueryString();
+        if ($isGlobal) {
+            $query->selectRaw('MIN(id) as id, product_id, SUM(quantity) as quantity')
+                  ->groupBy('product_id');
+            $stocks = $query->paginate(15)->withQueryString();
+        } else {
+            $stocks = $query->orderBy('warehouse_id')->paginate(15)->withQueryString();
+        }
 
         return Inertia::render('Stocks/Index', [
             'stocks' => $stocks,
-            'filters' => $request->only('search'),
+            'filters' => $request->only('search', 'warehouse_id', 'view_mode'),
             'warehouses' => \App\Models\Warehouse::all(),
-            'products' => \App\Models\Product::all(['id', 'name', 'sku']),
+            'products' => \App\Models\Product::with('category')->get(['id', 'name', 'sku', 'category_id']),
         ]);
     }
 

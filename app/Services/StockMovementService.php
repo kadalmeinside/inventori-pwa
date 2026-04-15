@@ -65,104 +65,70 @@ class StockMovementService
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // STOCK OUT — requires approval workflow
+    // STOCK OUT — instant deduction (no approval workflow)
     // ──────────────────────────────────────────────────────────────────────────
 
     /**
-     * Create a Stock Out request (does NOT deduct stock yet).
+     * Instantly deduct stock from a warehouse.
+     * Branch Admins can only deduct from their own warehouse.
+     * All actions are permanently recorded in the InventoryLog audit trail.
+     *
+     * @throws RuntimeException if stock is insufficient.
      */
-    public function requestStockOut(
+    public function instantStockOut(
         Warehouse $warehouse,
         Product   $product,
         int       $quantity,
-        User      $requester,
+        User      $performedBy,
         \App\Enums\StockOutCategory $category,
         ?string   $reason = null,
-    ): StockOut {
+    ): InventoryLog {
         if ($quantity <= 0) {
             throw new RuntimeException('Stock Out quantity must be greater than zero.');
         }
 
-        return StockOut::create([
-            'warehouse_id' => $warehouse->id,
-            'product_id'   => $product->id,
-            'quantity'     => $quantity,
-            'status'       => StockOutStatus::Pending,
-            'category'     => $category,
-            'reason'       => $reason,
-            'requested_by' => $requester->id,
-        ]);
-    }
-
-    /**
-     * Approve a pending Stock Out.
-     * Only after approval does the stock ledger get updated.
-     *
-     * @throws RuntimeException if status is not pending or stock is insufficient.
-     */
-    public function approveStockOut(StockOut $stockOut, User $approver): InventoryLog
-    {
-        if (! $stockOut->isPending()) {
-            throw new RuntimeException(
-                "Cannot approve a Stock Out that is already [{$stockOut->status->value}]."
-            );
-        }
-
-        return DB::transaction(function () use ($stockOut, $approver) {
+        return DB::transaction(function () use ($warehouse, $product, $quantity, $performedBy, $category, $reason) {
             $entry = StockEntry::lockForUpdate()
-                ->where('warehouse_id', $stockOut->warehouse_id)
-                ->where('product_id', $stockOut->product_id)
+                ->where('warehouse_id', $warehouse->id)
+                ->where('product_id', $product->id)
                 ->firstOrFail();
 
-            if (! $entry->hasSufficientStock($stockOut->quantity)) {
+            if (! $entry->hasSufficientStock($quantity)) {
                 throw new RuntimeException(
-                    "Insufficient stock. Available: {$entry->quantity}, Requested: {$stockOut->quantity}."
+                    "Insufficient stock. Available: {$entry->quantity}, Requested: {$quantity}."
                 );
             }
 
             $balanceBefore = $entry->quantity;
-            $entry->decrement('quantity', $stockOut->quantity);
+            $entry->decrement('quantity', $quantity);
             $entry->refresh();
 
-            $stockOut->update([
-                'status'      => StockOutStatus::Approved,
-                'approved_by' => $approver->id,
-                'approved_at' => now(),
+            // Create standard stock out record for audit trail history
+            $stockOut = \App\Models\StockOut::create([
+                'warehouse_id' => $warehouse->id,
+                'product_id'   => $product->id,
+                'quantity'     => $quantity,
+                'status'       => \App\Enums\StockOutStatus::Approved,
+                'category'     => $category,
+                'reason'       => $reason,
+                'requested_by' => $performedBy->id,
+                'approved_by'  => $performedBy->id,
+                'approved_at'  => now(),
             ]);
 
             return $this->writeLog(
-                warehouse:     $stockOut->warehouse,
-                product:       $stockOut->product,
+                warehouse:     $warehouse,
+                product:       $product,
                 entry:         $entry,
                 type:          StockMovementType::StockOut,
-                quantity:      -$stockOut->quantity,
+                quantity:      -$quantity,
                 balanceBefore: $balanceBefore,
                 balanceAfter:  $entry->quantity,
                 reference:     $stockOut,
-                notes:         "Stock Out approved by {$approver->name}",
-                performedBy:   $approver,
+                notes:         "[{$category->value}] {$reason}",
+                performedBy:   $performedBy,
             );
         });
-    }
-
-    /**
-     * Reject a pending Stock Out (no ledger entry needed).
-     */
-    public function rejectStockOut(StockOut $stockOut, User $approver): StockOut
-    {
-        if (! $stockOut->isPending()) {
-            throw new RuntimeException(
-                "Cannot reject a Stock Out that is already [{$stockOut->status->value}]."
-            );
-        }
-
-        $stockOut->update([
-            'status'      => StockOutStatus::Rejected,
-            'approved_by' => $approver->id,
-            'approved_at' => now(),
-        ]);
-
-        return $stockOut;
     }
 
     // ──────────────────────────────────────────────────────────────────────────

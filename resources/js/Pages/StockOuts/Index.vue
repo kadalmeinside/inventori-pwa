@@ -1,12 +1,16 @@
 <template>
-  <AppLayout title="Stock Out Approvals">
+  <AppLayout title="Stock Out">
     <div class="page-wrap">
 
       <div class="page-header">
         <div>
-          <p class="page-eyebrow">Approvals</p>
-          <h1 class="page-title">Stock Outs</h1>
+          <p class="page-eyebrow">Warehouse Operations</p>
+          <h1 class="page-title">Stock Out</h1>
         </div>
+        <button class="btn-ios btn-ios-primary" @click="openModal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+          Record Stock Out
+        </button>
       </div>
 
       <div class="glass-card">
@@ -15,19 +19,14 @@
           <table class="ios-table">
             <thead>
               <tr>
-                <th>Status</th>
-                <th>Date / Requester</th>
+                <th>Date / By</th>
                 <th>Item & Location</th>
-                <th>Reason</th>
+                <th>Category / Reason</th>
                 <th class="text-right">Qty</th>
-                <th class="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="req in stockOuts.data" :key="req.id" class="table-row">
-                <td>
-                  <span class="status-badge" :class="statusClass(req.status)">{{ req.status.toUpperCase() }}</span>
-                </td>
                 <td>
                   <div class="td-name" style="font-weight:500;">{{ formatDate(req.created_at) }}</div>
                   <div class="td-muted" style="font-size:0.75rem; margin-top:2px;">{{ req.requester?.name }}</div>
@@ -44,15 +43,8 @@
                   <span class="td-name font-mono">{{ req.quantity }}</span>
                   <span class="td-muted" style="font-size:0.75rem; margin-left:3px;">{{ req.product?.unit }}</span>
                 </td>
-                <td class="text-center">
-                  <div v-if="req.status === 'pending' && isAdmin" class="action-group">
-                    <button class="action-btn action-btn--green" @click="approveRequest(req)">Approve</button>
-                    <button class="action-btn action-btn--red" @click="rejectRequest(req)">Reject</button>
-                  </div>
-                  <span v-else class="by-label">{{ req.approver ? `By ${req.approver.name}` : '—' }}</span>
-                </td>
               </tr>
-              <tr v-if="stockOuts.data.length === 0"><td colspan="6" class="empty-cell">No stock out requests found.</td></tr>
+              <tr v-if="stockOuts.data.length === 0"><td colspan="4" class="empty-cell">No stock out records found.</td></tr>
             </tbody>
           </table>
         </div>
@@ -66,7 +58,7 @@
                   <div class="td-muted" style="font-size:0.72rem;">{{ formatDate(req.created_at) }} · {{ req.requester?.name }}</div>
                   <h3 class="mobile-card__name">{{ req.product?.name }}</h3>
                 </div>
-                <span class="status-badge" :class="statusClass(req.status)">{{ req.status.toUpperCase() }}</span>
+                <span v-if="req.category" class="cat-chip">{{ categoryLabels[req.category] }}</span>
               </div>
 
               <div class="mobile-card__meta">
@@ -74,7 +66,6 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
                   {{ req.warehouse?.name }}
                 </span>
-                <span v-if="req.category" class="cat-chip">{{ categoryLabels[req.category] }}</span>
               </div>
 
               <div class="detail-row">
@@ -87,16 +78,8 @@
                   <div class="detail-qty-val">{{ req.quantity }} <span style="font-size:0.65rem;">{{ req.product?.unit }}</span></div>
                 </div>
               </div>
-
-              <div v-if="req.status === 'pending' && isAdmin" class="mobile-card__actions">
-                <button class="action-btn action-btn--green action-btn--full" @click="approveRequest(req)">Approve</button>
-                <button class="action-btn action-btn--red action-btn--full" @click="rejectRequest(req)">Reject</button>
-              </div>
-              <div v-else-if="req.approver" class="by-label" style="text-align:center; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.05); margin-top:0.25rem;">
-                Actioned by <strong>{{ req.approver.name }}</strong>
-              </div>
             </div>
-            <div v-if="stockOuts.data.length === 0" class="empty-cell">No stock out requests found.</div>
+            <div v-if="stockOuts.data.length === 0" class="empty-cell">No stock out records found.</div>
           </div>
         </div>
 
@@ -109,32 +92,115 @@
         </div>
       </div>
     </div>
+
+    <!-- ─── Record Stock Out Modal ─────────────────────────────────────── -->
+    <Modal :show="showModal" @close="closeModal" maxWidth="md">
+      <div class="modal-body">
+        <div class="modal-header">
+          <div class="modal-header__icon" style="background:rgba(255,59,48,0.12);color:#FF3B30;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M5 12h14"/></svg>
+          </div>
+          <div>
+            <h2 class="modal-header__title">Record Stock Out</h2>
+            <p class="modal-header__sub">Deduct stock instantly from warehouse</p>
+          </div>
+          <button class="modal-close" @click="closeModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <form @submit.prevent="submitStockOut" class="modal-form">
+          <div class="form-grid">
+            <!-- Warehouse -->
+            <div class="field span-2">
+              <InputLabel for="so_warehouse" value="Warehouse" />
+              <div v-if="!isSuperAdmin" class="input-ios input-ios--locked">
+                {{ myWarehouse?.name ?? 'Your Warehouse' }}
+              </div>
+              <select v-else id="so_warehouse" v-model="form.warehouse_id" class="input-ios" required>
+                <option disabled value="">Select warehouse…</option>
+                <option v-for="wh in warehouses" :key="wh.id" :value="wh.id">{{ wh.name }}</option>
+              </select>
+              <InputError :message="form.errors.warehouse_id" />
+            </div>
+            <!-- Product -->
+            <div class="field span-2">
+              <InputLabel for="so_product" value="Product" />
+              <select id="so_product" v-model="form.product_id" class="input-ios" required>
+                <option disabled value="">Select product…</option>
+                <option v-for="p in products" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
+              </select>
+              <InputError :message="form.errors.product_id" />
+            </div>
+            <!-- Quantity -->
+            <div class="field">
+              <InputLabel for="so_qty" value="Quantity" />
+              <TextInput id="so_qty" v-model="form.quantity" type="number" min="1" required />
+              <InputError :message="form.errors.quantity" />
+            </div>
+            <!-- Category -->
+            <div class="field">
+              <InputLabel for="so_cat" value="Category" />
+              <select id="so_cat" v-model="form.category" class="input-ios" required>
+                <option value="sales">Penjualan</option>
+                <option value="internal_use">Pemakaian Internal</option>
+                <option value="damaged">Rusak</option>
+                <option value="expired">Kedaluwarsa</option>
+                <option value="adjustment">Stok Opname</option>
+              </select>
+              <InputError :message="form.errors.category" />
+            </div>
+            <!-- Reason -->
+            <div class="field span-2">
+              <InputLabel for="so_reason" value="Reason / Notes (optional)" />
+              <TextInput id="so_reason" v-model="form.reason" type="text" placeholder="e.g. Sold to customer A" />
+              <InputError :message="form.errors.reason" />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" @click="closeModal" class="btn-ios btn-ios-glass">Cancel</button>
+            <PrimaryButton style="background:#FF3B30;box-shadow:0 4px 12px rgba(255,59,48,0.3);" :class="{ 'opacity-50': form.processing }" :disabled="form.processing">
+              Record Stock Out
+            </PrimaryButton>
+          </div>
+        </form>
+      </div>
+    </Modal>
   </AppLayout>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { router, Link, usePage } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import { ref, computed } from 'vue';
+import { useForm, Link, usePage } from '@inertiajs/vue3';
+import AppLayout    from '@/Layouts/AppLayout.vue';
+import Modal        from '@/Components/Modal.vue';
+import InputLabel   from '@/Components/InputLabel.vue';
+import InputError   from '@/Components/InputError.vue';
+import TextInput    from '@/Components/TextInput.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-defineProps({ stockOuts: Object });
-const page    = usePage();
-const isAdmin = computed(() => page.props.auth.user.role === 'super_admin');
+const props = defineProps({ stockOuts: Object, warehouses: Array, products: Array });
+const page  = usePage();
+const user  = computed(() => page.props.auth.user);
+const isSuperAdmin = computed(() => user.value.role === 'super_admin');
+const myWarehouse  = computed(() => props.warehouses?.find(w => w.id === user.value.warehouse_id));
 
 const categoryLabels = { sales: 'Penjualan', internal_use: 'Pemakaian', damaged: 'Rusak', expired: 'Kedaluwarsa', adjustment: 'Stok Opname' };
-
 const formatDate = (d) => new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-const statusClass = (s) => ({ pending: 'status-badge--blue', approved: 'status-badge--green', rejected: 'status-badge--red' }[s] || '');
+// ─── Record Stock Out Modal ───────────────────────────────────────────────────
+const showModal = ref(false);
+const form = useForm({ warehouse_id: '', product_id: '', quantity: 1, category: 'sales', reason: '' });
 
-const approveRequest = (req) => {
-  if (confirm(`Approve stock out of ${req.quantity} ${req.product.name}?`))
-    router.patch(route('stock-outs.approve', req.id), {}, { preserveScroll: true });
+const openModal = () => {
+  form.reset();
+  form.clearErrors();
+  // Auto-fill warehouse for Branch Admin
+  if (!isSuperAdmin.value) form.warehouse_id = user.value.warehouse_id;
+  showModal.value = true;
 };
-const rejectRequest = (req) => {
-  if (confirm(`Reject stock out of ${req.quantity} ${req.product.name}?`))
-    router.patch(route('stock-outs.reject', req.id), {}, { preserveScroll: true });
-};
+
+const closeModal = () => { showModal.value = false; form.reset(); };
+const submitStockOut = () => form.post(route('stock-outs.store'), { preserveScroll: true, onSuccess: closeModal });
 </script>
 
 <style scoped>

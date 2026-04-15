@@ -13,9 +13,10 @@ class ProductController extends Controller
     {
         if ($request->user()->role->value !== 'super_admin') abort(403);
 
-        $products = Product::latest()->paginate(15);
+        $products = Product::with('category')->latest()->paginate(15);
         return Inertia::render('Products/Index', [
-            'products' => $products
+            'products' => $products,
+            'categories' => \App\Models\Category::where('is_active', true)->get(['id', 'name'])
         ]);
     }
 
@@ -26,7 +27,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:50|unique:products,sku',
-            'category' => 'nullable|string|max:255',
+            'category_id' => 'required|exists:categories,id',
             'unit' => 'required|string|max:20',
             'min_stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
@@ -44,7 +45,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku' => ['required', 'string', 'max:50', Rule::unique('products')->ignore($product)],
-            'category' => 'nullable|string|max:255',
+            'category_id' => 'required|exists:categories,id',
             'unit' => 'required|string|max:20',
             'min_stock' => 'required|integer|min:0',
             'description' => 'nullable|string',

@@ -41,7 +41,7 @@
                 </td>
                 <td class="td-name">{{ product.name }}</td>
                 <td class="td-mono">{{ product.sku }}</td>
-                <td class="td-muted">{{ product.category || '—' }}</td>
+                <td class="td-muted">{{ product.category?.name || '—' }}</td>
                 <td>
                   <span class="td-mono td-white">{{ product.min_stock }}</span>
                   <span class="td-unit"> {{ product.unit }}</span>
@@ -83,7 +83,7 @@
               <div class="mobile-card__meta">
                 <span class="meta-chip">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg>
-                  {{ product.category || '—' }}
+                  {{ product.category?.name || '—' }}
                 </span>
                 <span class="meta-chip">
                   Min: <strong>{{ product.min_stock }}</strong> {{ product.unit }}
@@ -158,9 +158,12 @@
 
             <!-- Category -->
             <div class="field">
-              <InputLabel for="category" value="Category" />
-              <TextInput id="category" v-model="form.category" type="text" placeholder="e.g. Electronics" />
-              <InputError :message="form.errors.category" />
+              <InputLabel for="category_id" value="Category" />
+              <select id="category_id" v-model="form.category_id" required class="input-ios">
+                <option value="" disabled>Select a Category...</option>
+                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+              </select>
+              <InputError :message="form.errors.category_id" />
             </div>
 
             <!-- Unit -->
@@ -232,14 +235,14 @@ import InputLabel     from '@/Components/InputLabel.vue';
 import InputError     from '@/Components/InputError.vue';
 import PrimaryButton  from '@/Components/PrimaryButton.vue';
 
-defineProps({ products: Object });
+defineProps({ products: Object, categories: Array });
 
 const showModal  = ref(false);
 const isEditing  = ref(false);
 const editingId  = ref(null);
 
 const form = useForm({
-  name: '', sku: '', category: '', unit: 'pcs',
+  name: '', sku: '', category_id: '', unit: 'pcs',
   min_stock: 0, description: '', is_active: true,
 });
 
@@ -250,7 +253,7 @@ const openModal = (product = null) => {
     editingId.value  = product.id;
     form.name        = product.name;
     form.sku         = product.sku;
-    form.category    = product.category || '';
+    form.category_id = product.category_id || '';
     form.unit        = product.unit;
     form.min_stock   = product.min_stock;
     form.description = product.description || '';

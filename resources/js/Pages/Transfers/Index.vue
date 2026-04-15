@@ -144,7 +144,11 @@
           <div class="form-grid">
             <div class="field">
               <InputLabel for="source_warehouse" value="Source Warehouse" />
-              <select id="source_warehouse" v-model="form.source_warehouse_id" class="input-ios" required>
+              <!-- Branch Admin: auto-locked to own warehouse -->
+              <div v-if="!isSuperAdmin" class="input-ios input-ios--locked">
+                {{ myWarehouse?.name ?? 'Your Warehouse' }}
+              </div>
+              <select v-else id="source_warehouse" v-model="form.source_warehouse_id" class="input-ios" required>
                 <option disabled value="">Select source…</option>
                 <option v-for="wh in warehouses" :key="wh.id" :value="wh.id">{{ wh.name }}</option>
               </select>
@@ -154,7 +158,11 @@
               <InputLabel for="dest_warehouse" value="Destination Warehouse" />
               <select id="dest_warehouse" v-model="form.destination_warehouse_id" class="input-ios" required>
                 <option disabled value="">Select destination…</option>
-                <option v-for="wh in warehouses" :key="wh.id" :value="wh.id">{{ wh.name }}</option>
+                <option
+                  v-for="wh in destinationWarehouses"
+                  :key="wh.id"
+                  :value="wh.id"
+                >{{ wh.name }}</option>
               </select>
               <InputError :message="form.errors.destination_warehouse_id" />
             </div>
@@ -211,7 +219,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
 import Modal         from '@/Components/Modal.vue';
@@ -220,11 +228,20 @@ import InputLabel    from '@/Components/InputLabel.vue';
 import InputError    from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-defineProps({ transfers: Object, warehouses: Array, products: Array });
-const page = usePage();
+const props = defineProps({ transfers: Object, warehouses: Array, products: Array });
+const page  = usePage();
+const user  = computed(() => page.props.auth.user);
+const isSuperAdmin = computed(() => user.value.role === 'super_admin');
+const myWarehouse  = computed(() => props.warehouses?.find(w => w.id === user.value.warehouse_id));
+
+// Destinations exclude the user's own warehouse for Branch Admin
+const destinationWarehouses = computed(() => {
+  if (isSuperAdmin.value) return props.warehouses;
+  return props.warehouses.filter(w => w.id !== user.value.warehouse_id);
+});
+
 const canReceive = (t) => {
-  const u = page.props.auth.user;
-  return u.role === 'super_admin' || u.warehouse_id === t.destination_warehouse_id;
+  return user.value.role === 'super_admin' || user.value.warehouse_id === t.destination_warehouse_id;
 };
 
 const statusClass = (s) => ({
@@ -238,11 +255,20 @@ const showModal = ref(false), showConfirmModal = ref(false);
 const activeTransfer = ref(null);
 
 const form = useForm({ source_warehouse_id: '', destination_warehouse_id: '', product_id: '', quantity: 1, notes: '' });
-const openInitiateModal = () => { form.clearErrors(); form.reset(); showModal.value = true; };
-const closeModal = () => { showModal.value = false; form.reset(); };
+
+const openInitiateModal = () => {
+  form.clearErrors();
+  form.reset();
+  // Auto-set source for Branch Admin
+  if (!isSuperAdmin.value) {
+    form.source_warehouse_id = user.value.warehouse_id;
+  }
+  showModal.value = true;
+};
+const closeModal  = () => { showModal.value = false; form.reset(); };
 const submitTransfer = () => form.post(route('transfers.store'), { preserveScroll: true, onSuccess: closeModal });
 
-const receiveTransfer = (t) => { activeTransfer.value = t; showConfirmModal.value = true; };
+const receiveTransfer   = (t) => { activeTransfer.value = t; showConfirmModal.value = true; };
 const closeConfirmModal = () => { showConfirmModal.value = false; setTimeout(() => activeTransfer.value = null, 300); };
 const submitReceive = () => {
   if (activeTransfer.value) {

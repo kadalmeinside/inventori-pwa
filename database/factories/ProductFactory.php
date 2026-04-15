@@ -14,7 +14,7 @@ class ProductFactory extends Factory
         return [
             'sku'         => strtoupper(fake()->unique()->bothify('SKU-####')),
             'name'        => fake()->words(3, true),
-            'category'    => fake()->randomElement(['Electronics', 'Clothing', 'Food', 'Tools']),
+            'category_id' => \App\Models\Category::inRandomOrder()->first()->id ?? \App\Models\Category::factory()->create()->id,
             'unit'        => fake()->randomElement(['pcs', 'kg', 'box', 'liter']),
             'min_stock'   => fake()->numberBetween(5, 20),
             'description' => fake()->sentence(),

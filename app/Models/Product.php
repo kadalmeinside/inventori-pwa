@@ -14,7 +14,7 @@ class Product extends Model
     protected $fillable = [
         'sku',
         'name',
-        'category',
+        'category_id',
         'unit',
         'min_stock',
         'description',
@@ -27,6 +27,11 @@ class Product extends Model
     ];
 
     // ─── Relationships ────────────────────────────────────────────────────────
+
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     public function stockEntries(): HasMany
     {

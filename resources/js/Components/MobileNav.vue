@@ -41,7 +41,7 @@
       <Link :href="route('stocks.index')" class="nav-tab" :class="{ 'nav-tab--active': cur('stocks.index') }" aria-label="Stocks">
         <div class="nav-tab__icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+            <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
           </svg>
         </div>
         <span class="nav-tab__label">Stocks</span>
@@ -51,20 +51,20 @@
       <Link :href="route('transfers.index')" class="nav-tab" :class="{ 'nav-tab--active': cur('transfers.index') }" aria-label="Transfers">
         <div class="nav-tab__icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
+            <path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>
           </svg>
         </div>
         <span class="nav-tab__label">Transfers</span>
       </Link>
 
-      <!-- Approvals -->
-      <Link :href="route('stock-outs.index')" class="nav-tab" :class="{ 'nav-tab--active': cur('stock-outs.index') }" aria-label="Approvals">
+      <!-- Stock Out -->
+      <Link :href="route('stock-outs.index')" class="nav-tab" :class="{ 'nav-tab--active': cur('stock-outs.index') }" aria-label="Stock Out">
         <div class="nav-tab__icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h9"/>
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/><path d="M16 3h5"/>
           </svg>
         </div>
-        <span class="nav-tab__label">Approvals</span>
+        <span class="nav-tab__label">Stock Out</span>
       </Link>
 
       <!-- More -->
@@ -97,8 +97,8 @@
       </div>
 
       <div class="sheet-grid">
-        <!-- Products -->
-        <Link :href="route('products.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('products.index') }" @click="showSheet = false">
+        <!-- Products (super admin only) -->
+        <Link v-if="isSuperAdmin" :href="route('products.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('products.index') }" @click="showSheet = false">
           <div class="sheet-item__icon sheet-item__icon--orange">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
@@ -108,8 +108,18 @@
           <span class="sheet-item__label">Products</span>
         </Link>
 
-        <!-- Warehouses -->
-        <Link :href="route('warehouses.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('warehouses.index') }" @click="showSheet = false">
+        <!-- Categories (super admin only) -->
+        <Link v-if="isSuperAdmin" :href="route('categories.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('categories.index') }" @click="showSheet = false">
+          <div class="sheet-item__icon sheet-item__icon--teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="sheet-item__label">Categories</span>
+        </Link>
+
+        <!-- Warehouses (super admin only) -->
+        <Link v-if="isSuperAdmin" :href="route('warehouses.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('warehouses.index') }" @click="showSheet = false">
           <div class="sheet-item__icon sheet-item__icon--teal">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -129,6 +139,19 @@
             </svg>
           </div>
           <span class="sheet-item__label">Users</span>
+        </Link>
+
+        <!-- Transfer Requests (all roles) -->
+        <Link :href="route('transfer-requests.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('transfer-requests.index') }" @click="showSheet = false">
+          <div class="sheet-item__icon sheet-item__icon--amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M16 3h5v5"/><path d="M8 3H3v5"/>
+              <path d="M21 3l-7 7"/><path d="M3 3l7 7"/>
+              <path d="M16 21h5v-5"/><path d="M21 21l-7-7"/>
+              <path d="M3 21l7-7"/><path d="M8 21H3v-5"/>
+            </svg>
+          </div>
+          <span class="sheet-item__label">Requests</span>
         </Link>
 
         <!-- Profile -->

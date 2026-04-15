@@ -35,11 +35,19 @@
             :class="{ 'sidebar__link--active': route().current('stock-outs.*') }"
           >
             <span class="sidebar__link-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h9"/>
-              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/><path d="M16 3h5"/></svg>
             </span>
-            <span class="sidebar__link-text">Approvals</span>
+            <span class="sidebar__link-text">Stock Out</span>
+          </Link>
+          <Link
+            :href="route('transfer-requests.index')"
+            class="sidebar__link"
+            :class="{ 'sidebar__link--active': route().current('transfer-requests.*') }"
+          >
+            <span class="sidebar__link-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7.5 7.5"/><path d="M3 3l7.5 7.5"/><path d="M16 21h5v-5"/><path d="M21 21l-7.5-7.5"/><path d="M3 21l7.5-7.5"/><path d="M8 21H3v-5"/></svg>
+            </span>
+            <span class="sidebar__link-text">Requests</span>
           </Link>
         </nav>
 
@@ -59,6 +67,18 @@
                 </svg>
               </span>
               <span class="sidebar__link-text">Products</span>
+            </Link>
+            <Link
+              :href="route('categories.index')"
+              class="sidebar__link"
+              :class="{ 'sidebar__link--active': route().current('categories.*') }"
+            >
+              <span class="sidebar__link-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                </svg>
+              </span>
+              <span class="sidebar__link-text">Categories</span>
             </Link>
             <Link
               :href="route('warehouses.index')"
@@ -189,13 +209,13 @@ const navItems = [
   {
     route: 'stocks.index',
     label: 'Stock',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>`,
     badge: null,
   },
   {
     route: 'transfers.index',
     label: 'Transfers',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>`,
     badge: null,
   },
 ]
