@@ -152,10 +152,10 @@
             </svg>
           </div>
           <span class="sheet-item__label">Requests</span>
-        </Link>
+        </a>
 
         <!-- Reports (all roles) -->
-        <Link :href="route('reports.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('reports.index') }" @click="showSheet = false">
+        <a href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('reports.index') }" @click.prevent="goTo(route('reports.index'))">
           <div class="sheet-item__icon sheet-item__icon--pink">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
@@ -164,10 +164,10 @@
             </svg>
           </div>
           <span class="sheet-item__label">Reports</span>
-        </Link>
+        </a>
 
         <!-- Profile -->
-        <Link :href="route('profile.edit')" class="sheet-item" :class="{ 'sheet-item--active': cur('profile.edit') }" @click="showSheet = false">
+        <a href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('profile.edit') }" @click.prevent="goTo(route('profile.edit'))">
           <div class="sheet-item__icon sheet-item__icon--blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
@@ -175,7 +175,7 @@
             </svg>
           </div>
           <span class="sheet-item__label">Profile</span>
-        </Link>
+        </a>
       </div>
 
       <div class="sheet-divider" />
