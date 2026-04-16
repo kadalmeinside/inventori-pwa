@@ -116,10 +116,10 @@
             </svg>
           </div>
           <span class="sheet-item__label">Categories</span>
-        </Link>
+        </a>
 
         <!-- Warehouses (super admin only) -->
-        <Link v-if="isSuperAdmin" :href="route('warehouses.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('warehouses.index') }" @click="showSheet = false">
+        <a v-if="isSuperAdmin" href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('warehouses.index') }" @click.prevent="goTo(route('warehouses.index'))">
           <div class="sheet-item__icon sheet-item__icon--teal">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -127,10 +127,10 @@
             </svg>
           </div>
           <span class="sheet-item__label">Warehouses</span>
-        </Link>
+        </a>
 
         <!-- Users (super admin only) -->
-        <Link v-if="isSuperAdmin" :href="route('users.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('users.index') }" @click="showSheet = false">
+        <a v-if="isSuperAdmin" href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('users.index') }" @click.prevent="goTo(route('users.index'))">
           <div class="sheet-item__icon sheet-item__icon--purple">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
@@ -139,10 +139,10 @@
             </svg>
           </div>
           <span class="sheet-item__label">Users</span>
-        </Link>
+        </a>
 
         <!-- Transfer Requests (all roles) -->
-        <Link :href="route('transfer-requests.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('transfer-requests.index') }" @click="showSheet = false">
+        <a href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('transfer-requests.index') }" @click.prevent="goTo(route('transfer-requests.index'))">
           <div class="sheet-item__icon sheet-item__icon--amber">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M16 3h5v5"/><path d="M8 3H3v5"/>
@@ -209,6 +209,13 @@ const closeSheet  = () => { showSheet.value = false; };
 const cur = (routeName) => { try { return route().current(routeName); } catch { return false; } };
 
 useModalHistory(showSheet, closeSheet);
+
+const goTo = (url) => {
+  showSheet.value = false;
+  setTimeout(() => {
+    import('@inertiajs/vue3').then(({ router }) => router.get(url));
+  }, 100);
+};
 
 // ─── Scroll-hide logic ────────────────────────────────────────────────────────
 let lastScrollY  = 0;

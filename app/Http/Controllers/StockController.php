@@ -81,6 +81,15 @@ class StockController extends Controller
                 notes: $validated['notes']
             );
 
+            // Notify Super Admin if Branch Admin adds stock directly
+            if ($request->user()->role->value === 'branch_admin') {
+                \App\Events\SystemNotification::dispatch(
+                    'superadmin',
+                    "Cabang {$warehouse->name} baru saja melakukan Menerima Stok sebesar {$validated['quantity']} item.",
+                    'success'
+                );
+            }
+
             return redirect()->back()->with('success', 'Stock Received Successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

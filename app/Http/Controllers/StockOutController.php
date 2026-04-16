@@ -62,6 +62,13 @@ class StockOutController extends Controller
                 reason:      $request->reason,
             );
 
+            // Notify Super Admin instantly
+            \App\Events\SystemNotification::dispatch(
+                'superadmin',
+                "Cabang {$warehouse->name} baru saja mencatat Stock Out sebesar {$request->quantity} item.",
+                'info'
+            );
+
             return redirect()->back()->with('success', 'Stock Out recorded successfully.');
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
