@@ -62,6 +62,6 @@ class User extends Authenticatable
 
         $id = $warehouseId instanceof Warehouse ? $warehouseId->id : $warehouseId;
 
-        return $this->warehouse_id === $id;
+        return $this->warehouse_id == $id;
     }
 }

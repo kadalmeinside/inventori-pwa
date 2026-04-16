@@ -48,7 +48,7 @@ class StockOutController extends Controller
         $warehouse = Warehouse::findOrFail($request->warehouse_id);
 
         // Branch Admin can only stock out from their own warehouse
-        if ($user->role->value === 'branch_admin' && $user->warehouse_id !== $warehouse->id) {
+        if ($user->role->value === 'branch_admin' && $user->warehouse_id != $warehouse->id) {
             abort(403, 'You can only manage stock in your own warehouse.');
         }
 
