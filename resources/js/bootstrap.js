@@ -8,7 +8,7 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
-window.Pusher.logToConsole = true; // Debug mode: Semua koneksi socket akan tercetak di Inspect Element > Console
+window.Pusher.logToConsole = import.meta.env.DEV; // Hanya aktif saat development
 
 if (import.meta.env.VITE_PUSHER_APP_KEY) {
     window.Echo = new Echo({

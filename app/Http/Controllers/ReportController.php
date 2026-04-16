@@ -41,8 +41,17 @@ class ReportController extends Controller
                 $period = '30d';
             }
         } elseif ($period === 'custom') {
-            $from = $request->query('from') ? Carbon::parse($request->query('from'))->startOfDay() : now()->subDays(30)->startOfDay();
-            $to = $request->query('to') ? Carbon::parse($request->query('to'))->endOfDay() : now()->endOfDay();
+            // Validasi format Y-m-d sebelum parsing untuk mencegah arbitrary input
+            $rawFrom = $request->query('from');
+            $rawTo   = $request->query('to');
+
+            $from = ($rawFrom && preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawFrom))
+                ? Carbon::createFromFormat('Y-m-d', $rawFrom)->startOfDay()
+                : now()->subDays(30)->startOfDay();
+
+            $to = ($rawTo && preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawTo))
+                ? Carbon::createFromFormat('Y-m-d', $rawTo)->endOfDay()
+                : now()->endOfDay();
         } else {
             // fallback
             $from = now()->subDays(30)->startOfDay();

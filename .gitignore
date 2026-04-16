@@ -15,6 +15,7 @@
 /node_modules
 /public/storage
 /storage/*.key
+/database/*.sqlite
 /storage/pail
 _ide_helper.php
 Homestead.json

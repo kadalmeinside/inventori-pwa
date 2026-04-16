@@ -25,9 +25,9 @@ class DashboardController extends Controller
         // ─── Stock Alerts (below min_stock) ───────────────────────────────
         $stockAlerts = StockEntry::with(['product', 'warehouse'])
             ->whereHas('product', fn ($q) => $q->where('is_active', true))
-            ->whereColumn('quantity', '<', 'products.min_stock')  // sub-select
-            ->when(! $user->isSuperAdmin(), fn ($q) => $q->where('warehouse_id', $user->warehouse_id))
             ->join('products', 'stock_entries.product_id', '=', 'products.id')
+            ->whereColumn('stock_entries.quantity', '<', 'products.min_stock')
+            ->when(! $user->isSuperAdmin(), fn ($q) => $q->where('stock_entries.warehouse_id', $user->warehouse_id))
             ->select('stock_entries.*')
             ->get();
 

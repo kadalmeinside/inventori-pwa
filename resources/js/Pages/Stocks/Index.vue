@@ -332,6 +332,10 @@ onUnmounted(() => {
 <style scoped>
 .page-wrap { padding: 2rem 1.25rem 5rem; max-width: 1100px; margin: 0 auto; }
 
+@media (max-width: 767px) {
+  .page-wrap { padding: 1.25rem 1rem 5rem; }
+}
+
 .btn-active { background: #007AFF !important; border-color: #007AFF !important; color: white !important; box-shadow: 0 4px 12px rgba(0,122,255,0.4) !important; }
 .btn-active .btn-text { max-width: 120px !important; opacity: 1 !important; font-size: 0.875rem !important; }
 
@@ -358,6 +362,11 @@ onUnmounted(() => {
 
 .page-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,0,0,0.35); margin: 0 0 0.2rem; }
 .page-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.04em; color: rgba(0,0,0,0.85); margin: 0; line-height: 1; }
+
+@media (max-width: 767px) {
+  .page-title { font-size: 1.375rem; letter-spacing: -0.03em; }
+  .page-eyebrow { font-size: 0.65rem; }
+}
 
 /* Receive Button (Perfect circle on mobile, expands on hover) */
 .btn-receive { grid-area: button; padding: 0; width: 2.375rem; height: 2.375rem; border-radius: 999px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,122,255,0.4); transition: all 0.3s var(--spring); align-self: flex-end; }

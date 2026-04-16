@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TransferRequest extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'requester_id',
         'from_warehouse_id',

@@ -144,6 +144,12 @@ const greeting = computed(() => {
   margin: 0 auto;
 }
 
+@media (max-width: 767px) {
+  .dashboard {
+    padding: 1.25rem 1rem 6rem;
+  }
+}
+
 /* ─── Header ─────────────────────────────────────────────────────────────── */
 .dashboard__header {
   display: flex;
@@ -166,6 +172,13 @@ const greeting = computed(() => {
   color: rgba(0, 0, 0, 0.85);
   margin: 0;
   line-height: 1.1;
+}
+
+@media (max-width: 767px) {
+  .dashboard__title {
+    font-size: 1.375rem;
+    letter-spacing: -0.03em;
+  }
 }
 
 .dashboard__subtitle { margin: 0.5rem 0 0; }
@@ -268,6 +281,28 @@ const greeting = computed(() => {
   letter-spacing: -0.04em;
   line-height: 1;
   display: block;
+}
+
+@media (max-width: 767px) {
+  .kpi-card__value {
+    font-size: 1.5rem;
+  }
+  .kpi-card {
+    padding: 1rem 0.875rem 0.875rem;
+  }
+  .kpi-card__icon-wrap {
+    width: 1.875rem;
+    height: 1.875rem;
+    border-radius: 0.625rem;
+    margin-bottom: 0.5rem;
+  }
+  .kpi-card__icon-wrap svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  .kpi-grid {
+    gap: 0.625rem;
+  }
 }
 
 /* Label */

@@ -353,3 +353,43 @@ body > * { position: relative; z-index: 1; }
 
 .toast--success { border-left: 3px solid var(--ios-green); }
 .toast--error   { border-left: 3px solid var(--ios-red); }
+.toast--info    { border-left: 3px solid var(--ios-blue); }
+
+/* ─── Input Locked (readonly mimic) ─────────────────────────────────────── */
+.input-ios--locked {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* ─── Mobile Responsive — Global ────────────────────────────────────────── */
+@media (max-width: 767px) {
+
+  /* Toast: lebih kecil, full-width di bawah layar pada mobile */
+  .toast {
+    top: auto;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+    left: 1rem;
+    right: 1rem;
+    max-width: 100%;
+    font-size: 0.8125rem;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Button text lebih kecil di mobile */
+  .btn-ios {
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+  }
+
+  /* Input sedikit lebih compact */
+  .input-ios {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+}
+
