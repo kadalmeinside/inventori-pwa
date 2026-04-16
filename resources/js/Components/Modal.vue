@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useModalHistory } from '@/Composables/useModalHistory.js';
 
 const props = defineProps({
     show:      { type: Boolean, default: false },
@@ -26,6 +27,9 @@ watch(() => props.show, () => {
 });
 
 const close = () => { if (props.closeable) emit('close'); };
+
+const showRef = computed(() => props.show);
+useModalHistory(showRef, close);
 
 const closeOnEscape = (e) => {
     if (e.key === 'Escape') { e.preventDefault(); if (props.show) close(); }

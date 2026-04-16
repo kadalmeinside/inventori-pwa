@@ -195,6 +195,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { useModalHistory } from '@/Composables/useModalHistory.js';
 
 const emit = defineEmits(['logout']);
 
@@ -204,7 +205,10 @@ const isHidden     = ref(false);
 const isSuperAdmin = computed(() => page.props.auth?.user?.role === 'super_admin');
 
 const toggleSheet = () => { showSheet.value = !showSheet.value; };
+const closeSheet  = () => { showSheet.value = false; };
 const cur = (routeName) => { try { return route().current(routeName); } catch { return false; } };
+
+useModalHistory(showSheet, closeSheet);
 
 // ─── Scroll-hide logic ────────────────────────────────────────────────────────
 let lastScrollY  = 0;
