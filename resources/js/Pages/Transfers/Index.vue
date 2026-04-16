@@ -174,6 +174,41 @@
               </select>
               <InputError :message="form.errors.product_id" />
             </div>
+
+            <!-- ── Stock Availability Alert ──────────────────────────── -->
+            <div v-if="(isSuperAdmin ? form.source_warehouse_id : user.warehouse_id) && form.product_id" class="field span-2">
+              <!-- No stock at all -->
+              <div v-if="currentSourceStock === 0" class="stock-alert stock-alert--danger">
+                <div class="stock-alert__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div class="stock-alert__body">
+                  <div class="stock-alert__title">Stok Tidak Tersedia di Cabang Asal</div>
+                  <div class="stock-alert__msg">Cabang asal tidak memiliki stok untuk produk tersebut. Transfer tidak dapat dilakukan.</div>
+                </div>
+              </div>
+              <!-- Insufficient stock -->
+              <div v-else-if="form.quantity > currentSourceStock" class="stock-alert stock-alert--warning">
+                <div class="stock-alert__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div class="stock-alert__body">
+                  <div class="stock-alert__title">Stok Tidak Mencukupi</div>
+                  <div class="stock-alert__msg">Jumlah transfer melebihi stok yang tersedia. Stok saat ini: <strong>{{ currentSourceStock }}</strong> unit.</div>
+                </div>
+              </div>
+              <!-- Stock OK -->
+              <div v-else class="stock-alert stock-alert--ok">
+                <div class="stock-alert__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="stock-alert__body">
+                  <div class="stock-alert__title">Stok Tersedia</div>
+                  <div class="stock-alert__msg">Stok tersedia di cabang asal: <strong>{{ currentSourceStock }}</strong> unit.</div>
+                </div>
+              </div>
+            </div>
+
             <div class="field">
               <InputLabel for="qty" value="Transfer Quantity" />
               <TextInput id="qty" v-model="form.quantity" type="number" min="1" required />
@@ -187,7 +222,10 @@
           </div>
           <div class="modal-actions">
             <button type="button" @click="closeModal" class="btn-ios btn-ios-glass">Cancel</button>
-            <PrimaryButton :class="{ 'opacity-50': form.processing }" :disabled="form.processing">Initiate</PrimaryButton>
+            <PrimaryButton
+              :class="{ 'opacity-50': form.processing || currentSourceStock === 0 }"
+              :disabled="form.processing || currentSourceStock === 0"
+            >Initiate</PrimaryButton>
           </div>
         </form>
       </div>
@@ -228,7 +266,7 @@ import InputLabel    from '@/Components/InputLabel.vue';
 import InputError    from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-const props = defineProps({ transfers: Object, warehouses: Array, products: Array });
+const props = defineProps({ transfers: Object, warehouses: Array, products: Array, stocks: Array });
 const page  = usePage();
 const user  = computed(() => page.props.auth.user);
 const isSuperAdmin = computed(() => user.value.role === 'super_admin');
@@ -255,6 +293,16 @@ const showModal = ref(false), showConfirmModal = ref(false);
 const activeTransfer = ref(null);
 
 const form = useForm({ source_warehouse_id: '', destination_warehouse_id: '', product_id: '', quantity: 1, notes: '' });
+
+// Current stock at source warehouse for selected product
+const currentSourceStock = computed(() => {
+  const srcId = isSuperAdmin.value ? form.source_warehouse_id : user.value.warehouse_id;
+  if (!srcId || !form.product_id) return null;
+  const entry = props.stocks?.find(
+    s => s.warehouse_id === srcId && s.product_id === form.product_id
+  );
+  return entry ? entry.quantity : 0;
+});
 
 const openInitiateModal = () => {
   form.clearErrors();
@@ -362,4 +410,30 @@ const submitReceive = () => {
 .confirm-sub { font-size: 0.875rem; color: rgba(0,0,0,0.55); line-height: 1.6; margin: 0; }
 .confirm-note { font-size: 0.75rem; color: rgba(0,0,0,0.35); margin: 0; }
 .confirm-actions { display: flex; gap: 0.625rem; margin-top: 0.5rem; }
+
+/* ── Stock Alert ──────────────────────────────────────────── */
+.stock-alert { display: flex; align-items: flex-start; gap: 0.625rem; padding: 0.75rem 0.875rem; border-radius: 0.75rem; border: 1px solid; animation: alertFadeIn 0.25s ease; }
+@keyframes alertFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.stock-alert__icon { flex-shrink: 0; width: 1.75rem; height: 1.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.stock-alert__body { display: flex; flex-direction: column; gap: 0.15rem; }
+.stock-alert__title { font-size: 0.78rem; font-weight: 700; }
+.stock-alert__msg { font-size: 0.72rem; line-height: 1.4; }
+
+/* Danger – no stock */
+.stock-alert--danger { background: rgba(255,59,48,0.07); border-color: rgba(255,59,48,0.25); }
+.stock-alert--danger .stock-alert__icon { background: rgba(255,59,48,0.12); color: #FF3B30; }
+.stock-alert--danger .stock-alert__title { color: #d32f2f; }
+.stock-alert--danger .stock-alert__msg { color: rgba(180,30,20,0.75); }
+
+/* Warning – insufficient */
+.stock-alert--warning { background: rgba(255,149,0,0.07); border-color: rgba(255,149,0,0.25); }
+.stock-alert--warning .stock-alert__icon { background: rgba(255,149,0,0.12); color: #FF9500; }
+.stock-alert--warning .stock-alert__title { color: #b06000; }
+.stock-alert--warning .stock-alert__msg { color: rgba(150,80,0,0.80); }
+
+/* OK – sufficient */
+.stock-alert--ok { background: rgba(52,199,89,0.07); border-color: rgba(52,199,89,0.22); }
+.stock-alert--ok .stock-alert__icon { background: rgba(52,199,89,0.12); color: #34C759; }
+.stock-alert--ok .stock-alert__title { color: #1a6d33; }
+.stock-alert--ok .stock-alert__msg { color: rgba(20,100,50,0.75); }
 </style>

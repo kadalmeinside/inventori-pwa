@@ -204,12 +204,57 @@
               </select>
               <InputError :message="approveForm.errors.from_warehouse_id" />
             </div>
+
+            <!-- ── Stock Alert (muncul setelah gudang sumber dipilih) ── -->
+            <Transition name="stock-banner">
+              <div v-if="approveForm.from_warehouse_id && activeRequest" class="field span-2">
+                <div class="approve-stock" :class="stockApproveClass">
+                  <!-- Icon -->
+                  <div class="approve-stock__icon">
+                    <svg v-if="approveSourceStock === 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <svg v-else-if="activeRequest.quantity > approveSourceStock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <!-- Body -->
+                  <div class="approve-stock__body">
+                    <span class="approve-stock__title">
+                      <template v-if="approveSourceStock === 0">Stok Tidak Tersedia</template>
+                      <template v-else-if="activeRequest.quantity > approveSourceStock">Stok Tidak Mencukupi</template>
+                      <template v-else>Stok Cukup &mdash; Siap Transfer</template>
+                    </span>
+                    <span class="approve-stock__msg">
+                      <template v-if="approveSourceStock === 0">Gudang ini tidak memiliki stok produk tersebut.</template>
+                      <template v-else-if="activeRequest.quantity > approveSourceStock">
+                        Diminta <strong>{{ activeRequest.quantity }}</strong> unit, tersedia <strong>{{ approveSourceStock }}</strong> unit.
+                        Kurang <strong>{{ activeRequest.quantity - approveSourceStock }}</strong> unit.
+                      </template>
+                      <template v-else>
+                        Stok tersedia: <strong>{{ approveSourceStock }}</strong> unit.
+                        Sisa setelah transfer: <strong>{{ approveSourceStock - activeRequest.quantity }}</strong> unit.
+                      </template>
+                    </span>
+                  </div>
+                  <!-- Qty Pill -->
+                  <div class="approve-stock__pill">
+                    <span class="approve-stock__qty">{{ approveSourceStock ?? 0 }}</span>
+                    <span class="approve-stock__unit">unit</span>
+                  </div>
+                </div>
+              </div>
+            </Transition>
+
           </div>
           <div class="modal-actions">
             <button type="button" @click="closeApproveModal" class="btn-ios btn-ios-glass">Cancel</button>
-            <PrimaryButton style="background:#34C759;box-shadow:0 4px 12px rgba(52,199,89,0.3);" :class="{ 'opacity-50': approveForm.processing }" :disabled="approveForm.processing">
-              Approve & Transfer
-            </PrimaryButton>
+            <button
+              type="submit"
+              class="btn-ios approve-submit-btn"
+              :class="{ 'approve-submit-btn--disabled': approveForm.processing || approveSourceStock === 0 || (activeRequest && activeRequest.quantity > approveSourceStock) }"
+              :disabled="approveForm.processing || approveSourceStock === 0 || (activeRequest && activeRequest.quantity > approveSourceStock)"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve &amp; Transfer
+            </button>
           </div>
         </form>
       </div>
@@ -228,7 +273,7 @@ import InputError    from '@/Components/InputError.vue';
 import TextInput     from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-const props = defineProps({ requests: Object, warehouses: Array, products: Array });
+const props = defineProps({ requests: Object, warehouses: Array, products: Array, stocks: Array });
 const page  = usePage();
 const user  = computed(() => page.props.auth.user);
 const isSuperAdmin = computed(() => user.value.role === 'super_admin');
@@ -258,6 +303,23 @@ const submitRequest     = () => requestForm.post(route('transfer-requests.store'
 const showApproveModal = ref(false);
 const activeRequest    = ref(null);
 const approveForm      = useForm({ from_warehouse_id: '' });
+
+// Stock available at the selected source warehouse for the requested product
+const approveSourceStock = computed(() => {
+  if (!approveForm.from_warehouse_id || !activeRequest.value) return null;
+  const entry = props.stocks?.find(
+    s => s.warehouse_id === approveForm.from_warehouse_id
+      && s.product_id  === activeRequest.value.product_id
+  );
+  return entry ? entry.quantity : 0;
+});
+
+const stockApproveClass = computed(() => {
+  if (approveSourceStock.value === null)                                         return '';
+  if (approveSourceStock.value === 0)                                            return 'approve-stock--danger';
+  if (activeRequest.value && activeRequest.value.quantity > approveSourceStock.value) return 'approve-stock--warning';
+  return 'approve-stock--ok';
+});
 
 const openApproveModal  = (req) => { activeRequest.value = req; approveForm.reset(); approveForm.clearErrors(); showApproveModal.value = true; };
 const closeApproveModal = () => { showApproveModal.value = false; setTimeout(() => activeRequest.value = null, 300); };
@@ -359,4 +421,131 @@ const rejectReq = (req) => {
   .span-2 { grid-column: span 1; }
   .modal-body { padding: 1.25rem; }
 }
+
+/* ── Approve Stock Banner ─────────────────────────────────── */
+.approve-stock {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.875rem;
+  border: 1px solid;
+  transition: all 0.2s ease;
+}
+
+/* Danger */
+.approve-stock--danger {
+  background: linear-gradient(135deg, rgba(255,59,48,0.08) 0%, rgba(255,90,70,0.04) 100%);
+  border-color: rgba(255,59,48,0.22);
+}
+.approve-stock--danger .approve-stock__icon { background: rgba(255,59,48,0.12); color: #FF3B30; }
+.approve-stock--danger .approve-stock__title { color: #c0291f; }
+.approve-stock--danger .approve-stock__msg { color: rgba(180,40,30,0.65); }
+.approve-stock--danger .approve-stock__pill { background: rgba(255,59,48,0.10); border-color: rgba(255,59,48,0.20); }
+.approve-stock--danger .approve-stock__qty  { color: #FF3B30; }
+
+/* Warning */
+.approve-stock--warning {
+  background: linear-gradient(135deg, rgba(255,149,0,0.08) 0%, rgba(255,180,0,0.04) 100%);
+  border-color: rgba(255,149,0,0.22);
+}
+.approve-stock--warning .approve-stock__icon { background: rgba(255,149,0,0.12); color: #FF9500; }
+.approve-stock--warning .approve-stock__title { color: #9a5000; }
+.approve-stock--warning .approve-stock__msg { color: rgba(140,80,0,0.65); }
+.approve-stock--warning .approve-stock__pill { background: rgba(255,149,0,0.10); border-color: rgba(255,149,0,0.20); }
+.approve-stock--warning .approve-stock__qty  { color: #FF9500; }
+
+/* OK */
+.approve-stock--ok {
+  background: linear-gradient(135deg, rgba(52,199,89,0.07) 0%, rgba(48,176,100,0.03) 100%);
+  border-color: rgba(52,199,89,0.20);
+}
+.approve-stock--ok .approve-stock__icon { background: rgba(52,199,89,0.12); color: #34C759; }
+.approve-stock--ok .approve-stock__title { color: #176b2f; }
+.approve-stock--ok .approve-stock__msg { color: rgba(20,90,40,0.60); }
+.approve-stock--ok .approve-stock__pill { background: rgba(52,199,89,0.10); border-color: rgba(52,199,89,0.18); }
+.approve-stock--ok .approve-stock__qty  { color: #28a745; }
+
+/* Sub-elements */
+.approve-stock__icon {
+  flex-shrink: 0;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.approve-stock__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.approve-stock__title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.approve-stock__msg {
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+.approve-stock__pill {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  text-align: center;
+}
+.approve-stock__qty {
+  font-size: 1.125rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.approve-stock__unit {
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.30);
+  margin-top: 2px;
+}
+
+/* Transition */
+.stock-banner-enter-active { transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+.stock-banner-leave-active { transition: all 0.18s ease; }
+.stock-banner-enter-from   { opacity: 0; transform: scaleY(0.8) translateY(-6px); }
+.stock-banner-leave-to     { opacity: 0; transform: scaleY(0.9) translateY(-4px); }
+
+/* Approve submit button */
+.approve-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.125rem;
+  font-size: 0.8125rem;
+  background: linear-gradient(180deg, #45d468 0%, #34C759 50%, #28a748 100%);
+  color: white;
+  box-shadow: 0 4px 14px rgba(52,199,89,0.38), inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.12);
+  border: 1px solid rgba(30,160,60,0.4);
+  transition: all 0.2s ease;
+}
+.approve-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #52db72 0%, #3bd464 50%, #2eb850 100%);
+  box-shadow: 0 6px 20px rgba(52,199,89,0.50), inset 0 1.5px 0 rgba(255,255,255,0.38);
+}
+.approve-submit-btn--disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
 </style>
+

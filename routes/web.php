@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\StockTransferController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Stocks listing & Stock In
     Route::get('/stocks',    [App\Http\Controllers\StockController::class, 'index'])->name('stocks.index');
     Route::post('/stocks/in',[App\Http\Controllers\StockController::class, 'store'])->name('stocks.in');
+
+    // Reports
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
     // Master Data (Super Admin only in controllers)
     Route::resource('warehouses', App\Http\Controllers\WarehouseController::class)->except(['create', 'show', 'edit']);

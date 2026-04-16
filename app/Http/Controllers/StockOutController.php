@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStockOutRequest;
+use App\Models\StockEntry;
 use App\Models\StockOut;
 use App\Models\Warehouse;
 use App\Services\StockMovementService;
@@ -33,6 +34,7 @@ class StockOutController extends Controller
             'stockOuts'  => $stockOuts,
             'warehouses' => Warehouse::all(),
             'products'   => \App\Models\Product::all(['id', 'name', 'sku', 'unit']),
+            'stocks'     => StockEntry::all(['warehouse_id', 'product_id', 'quantity']),
         ]);
     }
 

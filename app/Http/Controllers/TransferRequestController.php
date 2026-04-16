@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StockEntry;
 use App\Models\TransferRequest;
 use App\Models\Warehouse;
 use App\Services\StockMovementService;
@@ -33,6 +34,7 @@ class TransferRequestController extends Controller
             'requests'   => $requests,
             'warehouses' => Warehouse::all(),
             'products'   => \App\Models\Product::all(['id', 'name', 'sku', 'unit']),
+            'stocks'     => StockEntry::all(['warehouse_id', 'product_id', 'quantity']),
         ]);
     }
 

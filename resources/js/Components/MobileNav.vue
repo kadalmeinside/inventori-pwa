@@ -154,6 +154,18 @@
           <span class="sheet-item__label">Requests</span>
         </Link>
 
+        <!-- Reports (all roles) -->
+        <Link :href="route('reports.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('reports.index') }" @click="showSheet = false">
+          <div class="sheet-item__icon sheet-item__icon--pink">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/>
+              <line x1="9" y1="21" x2="9" y2="9"/>
+            </svg>
+          </div>
+          <span class="sheet-item__label">Reports</span>
+        </Link>
+
         <!-- Profile -->
         <Link :href="route('profile.edit')" class="sheet-item" :class="{ 'sheet-item--active': cur('profile.edit') }" @click="showSheet = false">
           <div class="sheet-item__icon sheet-item__icon--blue">
@@ -518,6 +530,8 @@ onUnmounted(() => {
 .sheet-item__icon--teal   { background: linear-gradient(145deg, #30B0C7, #1A8FA8); color: white; box-shadow: 0 4px 12px rgba(48,176,199,0.35); }
 .sheet-item__icon--purple { background: linear-gradient(145deg, #BF5AF2, #9B40D4); color: white; box-shadow: 0 4px 12px rgba(175,82,222,0.35); }
 .sheet-item__icon--blue   { background: linear-gradient(145deg, #007AFF, #0055D4); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.35); }
+.sheet-item__icon--amber  { background: linear-gradient(145deg, #FFB340, #F59300); color: white; box-shadow: 0 4px 12px rgba(245,147,0,0.35); }
+.sheet-item__icon--pink   { background: linear-gradient(145deg, #FF2D55, #D11035); color: white; box-shadow: 0 4px 12px rgba(255,45,85,0.35); }
 
 .sheet-item__label {
   font-size: 0.72rem;

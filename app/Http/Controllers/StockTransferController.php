@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\TransferStatus;
 use App\Http\Requests\StoreStockTransferRequest;
 use App\Models\StockTransfer;
+use App\Models\StockEntry;
 use App\Models\Warehouse;
 use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
@@ -40,6 +41,7 @@ class StockTransferController extends Controller
             'transfers'  => $transfers,
             'warehouses' => $warehouses,
             'products'   => $products,
+            'stocks'     => StockEntry::all(['warehouse_id', 'product_id', 'quantity']),
         ]);
     }
 

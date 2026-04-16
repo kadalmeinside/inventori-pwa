@@ -9,23 +9,27 @@
           <h1 class="page-title">Stock Inventory</h1>
         </div>
         <div class="header-actions">
-          <div class="search-wrap">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input
-              v-model="search"
-              type="text"
-              placeholder="Search products or SKU…"
-              class="search-input"
-              @keyup.enter="performSearch"
-            />
+          <div class="search-bar-group">
+            <div class="search-wrap">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input
+                v-model="search"
+                type="text"
+                placeholder="Search products or SKU…"
+                class="search-input"
+                @keyup.enter="performSearch"
+              />
+            </div>
+            <template v-if="page.props.auth.user.role === 'super_admin'">
+              <div class="search-wrap" v-if="viewMode !== 'global'">
+                <select v-model="warehouseId" @change="performSearch" class="search-input" style="padding-left: 1rem;">
+                  <option value="">All Branches</option>
+                  <option v-for="wh in warehouses" :key="wh.id" :value="wh.id">{{ wh.name }}</option>
+                </select>
+              </div>
+            </template>
           </div>
           <template v-if="page.props.auth.user.role === 'super_admin'">
-            <div class="search-wrap" v-if="viewMode !== 'global'">
-              <select v-model="warehouseId" @change="performSearch" class="search-input" style="padding-left: 1rem;">
-                <option value="">All Branches</option>
-                <option v-for="wh in warehouses" :key="wh.id" :value="wh.id">{{ wh.name }}</option>
-              </select>
-            </div>
             <button class="btn-ios btn-ios-glass" @click="toggleGlobalView" :class="{ 'btn-active': viewMode === 'global' }">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
               <span class="btn-text">Global Summary</span>
@@ -351,12 +355,14 @@ const submitStockIn = () => inForm.post(route('stocks.in'), { preserveScroll: tr
 }
 
 /* Search */
-.search-wrap { grid-area: search; position: relative; width: 100%; }
+.search-bar-group { grid-area: search; display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+.search-wrap { position: relative; width: 100%; }
 .search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 1rem; height: 1rem; color: rgba(0,0,0,0.30); pointer-events: none; }
 .search-input { padding: 0.625rem 1rem 0.625rem 2.25rem; background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.85); border-radius: 0.75rem; font-family: var(--font-sans); font-size: 0.875rem; color: var(--text-primary); outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); width: 100%; }
 .search-input::placeholder { color: rgba(0,0,0,0.30); }
 .search-input:focus { background: rgba(255,255,255,0.9); border-color: rgba(0,122,255,0.4); box-shadow: 0 0 0 3px rgba(0,122,255,0.12); }
 @media (min-width: 768px) {
+  .search-bar-group { flex-direction: row; align-items: center; width: auto; }
   .search-wrap { width: auto; }
   .search-input { width: 220px; }
 }
