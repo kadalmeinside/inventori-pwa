@@ -25,6 +25,7 @@ export default defineConfig({
 
       // Use Workbox for caching strategies
       workbox: {
+        navigateFallback: null,
         // Cache all static assets
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
 

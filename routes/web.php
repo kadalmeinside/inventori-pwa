@@ -65,14 +65,14 @@ Route::get('/offline', fn () => Inertia::render('Offline'))->name('offline');
 
 // ─── PWA Service Worker Virtual Route ────────────────────────────────────
 Route::get('/{file}', function ($file) {
-    if ($file === 'sw.js' || str_starts_with($file, 'workbox-')) {
+    if (in_array($file, ['sw.js', 'registerSW.js', 'manifest.webmanifest']) || str_starts_with($file, 'workbox-')) {
         return response()->file(public_path('build/' . $file), [
-            'Content-Type' => 'application/javascript',
+            'Content-Type' => str_ends_with($file, '.webmanifest') ? 'application/manifest+json' : 'application/javascript',
             'Service-Worker-Allowed' => '/'
         ]);
     }
     abort(404);
-})->where('file', '^(sw\.js|workbox-.*\.js)$');
+})->where('file', '^(sw\.js|registerSW\.js|manifest\.webmanifest|workbox-.*\.js)$');
 
 // Auth routes (provided by Laravel Breeze)
 require __DIR__ . '/auth.php';
