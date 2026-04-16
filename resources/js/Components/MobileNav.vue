@@ -109,7 +109,7 @@
         </Link>
 
         <!-- Categories (super admin only) -->
-        <Link v-if="isSuperAdmin" :href="route('categories.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('categories.index') }" @click="showSheet = false">
+        <a v-if="isSuperAdmin" href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('categories.index') }" @click.prevent="goTo(route('categories.index'))">
           <div class="sheet-item__icon sheet-item__icon--teal">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
