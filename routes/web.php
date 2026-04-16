@@ -64,12 +64,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/offline', fn () => Inertia::render('Offline'))->name('offline');
 
 // ─── PWA Service Worker Virtual Route ────────────────────────────────────
-Route::get('/sw.js', function () {
-    return response()->file(public_path('build/sw.js'), [
-        'Content-Type' => 'application/javascript',
-        'Service-Worker-Allowed' => '/'
-    ]);
-});
+Route::get('/{file}', function ($file) {
+    if ($file === 'sw.js' || str_starts_with($file, 'workbox-')) {
+        return response()->file(public_path('build/' . $file), [
+            'Content-Type' => 'application/javascript',
+            'Service-Worker-Allowed' => '/'
+        ]);
+    }
+    abort(404);
+})->where('file', '^(sw\.js|workbox-.*\.js)$');
 
 // Auth routes (provided by Laravel Breeze)
 require __DIR__ . '/auth.php';

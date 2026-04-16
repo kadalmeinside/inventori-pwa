@@ -43,4 +43,18 @@ class StockUpdated implements ShouldBroadcastNow
     {
         return 'StockUpdated';
     }
+
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'warehouseId' => $this->warehouseId,
+            'productId'   => $this->productId,
+            'updateType'  => $this->updateType,
+        ];
+    }
 }

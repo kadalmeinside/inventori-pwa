@@ -40,4 +40,17 @@ class SystemNotification implements ShouldBroadcastNow
     {
         return 'SystemNotification';
     }
+
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'message' => $this->message,
+            'type'    => $this->type,
+        ];
+    }
 }
