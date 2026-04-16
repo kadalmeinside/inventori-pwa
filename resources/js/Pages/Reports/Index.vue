@@ -136,7 +136,7 @@
         <div class="table-header">
           <h3 class="section-title" style="margin:0">Movement Logs</h3>
         </div>
-        <div class="table-wrap hidden md:block">
+        <div class="table-wrap desktop-only">
           <table class="ios-table">
             <thead>
               <tr>
@@ -165,7 +165,7 @@
                 </td>
                 <td class="text-right">
                   <span class="td-name font-mono" :class="isPositive(log.movement_type) ? 'text-green' : 'text-red'">
-                    {{ isPositive(log.movement_type) ? '+' : '-' }}{{ log.quantity }}
+                    {{ isPositive(log.movement_type) ? '+' : '-' }}{{ Math.abs(log.quantity) }}
                   </span>
                 </td>
                 <td class="text-right font-mono text-sm">
@@ -182,7 +182,7 @@
         </div>
         
         <!-- Mobile View (Cards) -->
-        <div class="mobile-list md:hidden">
+        <div class="mobile-list mobile-only">
           <div v-for="log in logs.data" :key="log.id" class="mobile-card">
             <div class="mobile-card__top">
               <div>
@@ -194,7 +194,7 @@
               </div>
               <div class="text-right">
                 <span class="td-name font-mono text-lg" :class="isPositive(log.movement_type) ? 'text-green' : 'text-red'">
-                  {{ isPositive(log.movement_type) ? '+' : '-' }}{{ log.quantity }}
+                  {{ isPositive(log.movement_type) ? '+' : '-' }}{{ Math.abs(log.quantity) }}
                 </span>
               </div>
             </div>
@@ -436,4 +436,13 @@ const getCategoryColorClass = (cat) => {
 .mobile-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
 .mobile-card__name { font-size: 1rem; font-weight: 700; color: rgba(0,0,0,0.82); letter-spacing: -0.02em; margin: 0.2rem 0 0; }
 .mobile-card__actions { display: flex; justify-content: space-between; align-items: center; padding-top: 0.375rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 0.25rem; }
+
+/* ─── Responsive: desktop table / mobile cards ─── */
+.desktop-only { display: none; }
+.mobile-only  { display: flex; }
+
+@media (min-width: 768px) {
+  .desktop-only { display: block; }
+  .mobile-only  { display: none; }
+}
 </style>

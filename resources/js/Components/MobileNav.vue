@@ -98,7 +98,7 @@
 
       <div class="sheet-grid">
         <!-- Products (super admin only) -->
-        <Link v-if="isSuperAdmin" :href="route('products.index')" class="sheet-item" :class="{ 'sheet-item--active': cur('products.index') }" @click="showSheet = false">
+        <a v-if="isSuperAdmin" href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('products.index') }" @click.prevent="goTo(route('products.index'))">
           <div class="sheet-item__icon sheet-item__icon--orange">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
               <path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
@@ -106,7 +106,7 @@
             </svg>
           </div>
           <span class="sheet-item__label">Products</span>
-        </Link>
+        </a>
 
         <!-- Categories (super admin only) -->
         <a v-if="isSuperAdmin" href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('categories.index') }" @click.prevent="goTo(route('categories.index'))">
