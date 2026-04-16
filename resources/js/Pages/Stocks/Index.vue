@@ -249,7 +249,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
 import Modal         from '@/Components/Modal.vue';
@@ -303,6 +303,26 @@ const openStockInModal = () => {
 };
 const closeInModal = () => { showInModal.value = false; inForm.reset(); };
 const submitStockIn = () => inForm.post(route('stocks.in'), { preserveScroll: true, onSuccess: closeInModal });
+
+let echoChannel;
+onMounted(() => {
+    if (window.Echo) {
+        const role = page.props.auth.user.role;
+        const channelName = role === 'super_admin' ? 'superadmin' : `warehouse.${page.props.auth.user.warehouse_id}`;
+        
+        echoChannel = window.Echo.private(channelName)
+            .listen('.StockUpdated', (e) => {
+                // Background refresh for Vue list!
+                router.reload({ only: ['stocks'], preserveScroll: true, preserveState: true });
+            });
+    }
+});
+
+onUnmounted(() => {
+    if (echoChannel && window.Echo) {
+        window.Echo.leave(echoChannel.name);
+    }
+});
 </script>
 
 <style scoped>

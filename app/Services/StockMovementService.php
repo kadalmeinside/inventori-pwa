@@ -291,7 +291,7 @@ class StockMovementService
         ?string            $notes,
         User               $performedBy,
     ): InventoryLog {
-        return InventoryLog::create([
+        $log = InventoryLog::create([
             'warehouse_id'   => $warehouse->id,
             'product_id'     => $product->id,
             'stock_entry_id' => $entry->id,
@@ -304,5 +304,13 @@ class StockMovementService
             'notes'          => $notes,
             'created_by'     => $performedBy->id,
         ]);
+
+        \App\Events\StockUpdated::dispatch(
+            $warehouse->id,
+            $product->id,
+            $type->value
+        );
+
+        return $log;
     }
 }
