@@ -195,6 +195,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 
 const emit = defineEmits(['logout']);
 
