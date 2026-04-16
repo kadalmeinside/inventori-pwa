@@ -309,11 +309,15 @@ onMounted(() => {
     if (window.Echo) {
         const role = page.props.auth.user.role;
         const channelName = role === 'super_admin' ? 'superadmin' : `warehouse.${page.props.auth.user.warehouse_id}`;
-        
+
         echoChannel = window.Echo.private(channelName)
             .listen('.StockUpdated', (e) => {
-                // Background refresh for Vue list!
-                router.reload({ only: ['stocks'], preserveScroll: true, preserveState: true });
+                // Hard reload the stocks data from server
+                router.reload({
+                    only: ['stocks'],
+                    preserveScroll: true,
+                    preserveState: false,
+                });
             });
     }
 });

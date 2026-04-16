@@ -26,8 +26,9 @@ export default defineConfig({
       // Use Workbox for caching strategies
       workbox: {
         navigateFallback: null,
-        // Cache all static assets
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // Disable static asset precaching (files live under /build/, not root)
+        // This prevents "bad-precaching-response" 404 errors
+        globPatterns: [],
 
         // Runtime caching rules
         runtimeCaching: [

@@ -151,16 +151,22 @@
       <slot />
     </main>
 
-    <!-- ─── Flash Toast ───────────────────────────────────────────────────── -->
+    <!-- ─── Live Pusher Toast ─────────────────────────────────────────────── -->
     <Transition name="toast">
       <div v-if="liveToast" class="toast" :class="'toast--' + liveToast.type" role="alert">
-        <span class="toast__icon">{{ liveToast.type === 'success' ? '✅' : (liveToast.type === 'error' ? '❌' : '🔔') }}</span> 
+        <span class="toast__icon">{{ liveToast.type === 'success' ? '✅' : (liveToast.type === 'error' ? '❌' : '🔔') }}</span>
         {{ liveToast.message }}
       </div>
-      <div v-else-if="flash.success" class="toast toast--success" role="alert">
+    </Transition>
+
+    <!-- ─── Flash Toast (from server redirect) ────────────────────────────── -->
+    <Transition name="toast">
+      <div v-if="!liveToast && flash.success" class="toast toast--success" role="alert">
         <span class="toast__icon">✅</span> {{ flash.success }}
       </div>
-      <div v-else-if="flash.error" class="toast toast--error" role="alert">
+    </Transition>
+    <Transition name="toast">
+      <div v-if="!liveToast && flash.error" class="toast toast--error" role="alert">
         <span class="toast__icon">❌</span> {{ flash.error }}
       </div>
     </Transition>

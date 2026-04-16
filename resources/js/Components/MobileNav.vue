@@ -194,8 +194,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import { useModalHistory } from '@/Composables/useModalHistory.js';
+import { router, usePage } from '@inertiajs/vue3';
 
 const emit = defineEmits(['logout']);
 
@@ -208,13 +207,11 @@ const toggleSheet = () => { showSheet.value = !showSheet.value; };
 const closeSheet  = () => { showSheet.value = false; };
 const cur = (routeName) => { try { return route().current(routeName); } catch { return false; } };
 
-useModalHistory(showSheet, closeSheet);
+
 
 const goTo = (url) => {
   showSheet.value = false;
-  setTimeout(() => {
-    import('@inertiajs/vue3').then(({ router }) => router.get(url));
-  }, 100);
+  setTimeout(() => router.get(url), 150);
 };
 
 // ─── Scroll-hide logic ────────────────────────────────────────────────────────
