@@ -1,0 +1,1 @@
+import{g as s,f as t,t as r,r as l,E as o,o as n}from"./app-xP8lwWU_.js";const p=Object.assign({inheritAttrs:!1},{__name:"InputLabel",props:{value:String},setup(a){return(e,c)=>(n(),s("label",o({class:"label-ios"},e.$attrs),[t(r(a.value)+" ",1),l(e.$slots,"default")],16))}});export{p as _};

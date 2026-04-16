@@ -1,1 +1,0 @@
-import{g as s,r,C as o,o as a}from"./app-D03vZPRi.js";const n=["type"],l={__name:"PrimaryButton",props:{type:{type:String,default:"submit"}},setup(e){return(t,p)=>(a(),s("button",o({type:e.type,class:["btn-ios btn-ios-primary",t.$attrs.class]},t.$attrs),[r(t.$slots,"default")],16,n))}};export{l as _};

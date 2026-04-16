@@ -66,6 +66,12 @@ class TransferRequestController extends Controller
             'status'           => 'pending',
         ]);
 
+        \App\Events\SystemNotification::dispatch(
+            'superadmin',
+            "Cabang " . $user->warehouse->name . " mengajukan Request Transfer baru.",
+            'info'
+        );
+
         return redirect()->back()->with('success', 'Transfer request submitted. Awaiting approval.');
     }
 
@@ -110,6 +116,12 @@ class TransferRequestController extends Controller
                 'reviewed_at'       => now(),
             ]);
 
+            \App\Events\SystemNotification::dispatch(
+                'warehouse.' . $destination->id,
+                "Request stok Anda telah Disetujui (Sedang Dikirim)!",
+                'success'
+            );
+
             return redirect()->back()->with('success', 'Request approved. Transfer has been initiated.');
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -134,6 +146,12 @@ class TransferRequestController extends Controller
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+
+        \App\Events\SystemNotification::dispatch(
+            'warehouse.' . $transferRequest->to_warehouse_id,
+            "Mohon maaf, Request stok Anda Ditolak oleh Pusat.",
+            'error'
+        );
 
         return redirect()->back()->with('success', 'Transfer request rejected.');
     }

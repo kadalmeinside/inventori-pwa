@@ -153,7 +153,11 @@
 
     <!-- ─── Flash Toast ───────────────────────────────────────────────────── -->
     <Transition name="toast">
-      <div v-if="flash.success" class="toast toast--success" role="alert">
+      <div v-if="liveToast" class="toast" :class="'toast--' + liveToast.type" role="alert">
+        <span class="toast__icon">{{ liveToast.type === 'success' ? '✅' : (liveToast.type === 'error' ? '❌' : '🔔') }}</span> 
+        {{ liveToast.message }}
+      </div>
+      <div v-else-if="flash.success" class="toast toast--success" role="alert">
         <span class="toast__icon">✅</span> {{ flash.success }}
       </div>
       <div v-else-if="flash.error" class="toast toast--error" role="alert">
@@ -194,7 +198,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Head, Link, usePage, router } from '@inertiajs/vue3'
 import MobileNav     from '@/Components/MobileNav.vue'
 import InstallPrompt from '@/Components/InstallPrompt.vue'
@@ -208,6 +212,27 @@ const page  = usePage()
 const flash = computed(() => page.props.flash ?? {})
 
 const showLogoutConfirm = ref(false)
+const liveToast = ref(null)
+let echoChannel;
+
+onMounted(() => {
+    if (window.Echo && page.props.auth?.user) {
+        const role = page.props.auth.user.role;
+        const channelName = role === 'super_admin' ? 'superadmin' : `warehouse.${page.props.auth.user.warehouse_id}`;
+        
+        echoChannel = window.Echo.private(channelName)
+            .listen('.SystemNotification', (e) => {
+                liveToast.value = { message: e.message, type: e.type };
+                setTimeout(() => { liveToast.value = null; }, 5000);
+            });
+    }
+});
+
+onUnmounted(() => {
+    if (echoChannel && window.Echo) {
+        window.Echo.leave(echoChannel.name);
+    }
+});
 
 const confirmLogout = () => {
   router.delete(route('logout'))
@@ -531,6 +556,7 @@ const userRole = computed(() => {
 
 .toast--success { border-left: 3px solid var(--ios-green); }
 .toast--error   { border-left: 3px solid var(--ios-red); }
+.toast--info    { border-left: 3px solid var(--ios-blue); }
 
 .toast-enter-active, .toast-leave-active {
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
