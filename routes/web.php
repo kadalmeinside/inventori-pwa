@@ -63,5 +63,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Offline fallback page
 Route::get('/offline', fn () => Inertia::render('Offline'))->name('offline');
 
+// ─── PWA Service Worker Virtual Route ────────────────────────────────────
+Route::get('/sw.js', function () {
+    return response()->file(public_path('build/sw.js'), [
+        'Content-Type' => 'application/javascript',
+        'Service-Worker-Allowed' => '/'
+    ]);
+});
+
 // Auth routes (provided by Laravel Breeze)
 require __DIR__ . '/auth.php';
