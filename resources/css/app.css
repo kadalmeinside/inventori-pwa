@@ -369,15 +369,17 @@ body > * { position: relative; z-index: 1; }
 /* ─── Mobile Responsive — Global ────────────────────────────────────────── */
 @media (max-width: 767px) {
 
-  /* Toast: lebih kecil, full-width di bawah layar pada mobile */
+  /* Toast: lebih kecil, tidak stretch di bawah layar pada mobile */
   .toast {
     top: auto;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
-    left: 1rem;
-    right: 1rem;
-    max-width: 100%;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 90vw;
     font-size: 0.8125rem;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 1rem;
   }
 
   /* Button text lebih kecil di mobile */
