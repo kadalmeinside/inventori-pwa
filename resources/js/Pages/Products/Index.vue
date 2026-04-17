@@ -61,7 +61,7 @@
         </div>
 
         <!-- Mobile Card List -->
-        <div class="block md:hidden p-4">
+        <div class="block md:hidden p-2">
           <div class="mobile-list">
             <div
               v-for="product in products.data"

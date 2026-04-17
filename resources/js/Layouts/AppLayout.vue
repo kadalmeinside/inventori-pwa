@@ -541,14 +541,17 @@ const userRole = computed(() => {
 /* ─── Toast ──────────────────────────────────────────────────────────────── */
 .toast {
   position: fixed;
-  top: 1.25rem;
+  top: max(1.25rem, env(safe-area-inset-top, 1.25rem));
+  left: 1.25rem;
   right: 1.25rem;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: calc(100vw - 2.5rem);
   padding: 0.875rem 1.25rem;
   border-radius: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  z-index: 9999;
-  max-width: 360px;
+  z-index: 99999;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -558,6 +561,20 @@ const userRole = computed(() => {
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,255,1);
   color: rgba(0, 0, 0, 0.80);
+  word-break: break-word; /* Ensure long words wrap */
+}
+
+@media (min-width: 400px) {
+  .toast {
+    max-width: 360px;
+  }
+}
+
+@media (min-width: 640px) {
+  .toast {
+    left: auto;
+    right: 1.25rem;
+  }
 }
 
 .toast--success { border-left: 3px solid var(--ios-green); }

@@ -50,7 +50,7 @@
         </div>
 
         <!-- Mobile Cards -->
-        <div class="block md:hidden p-4">
+        <div class="block md:hidden p-2">
           <div class="mobile-list">
             <div v-for="req in stockOuts.data" :key="'m-'+req.id" class="mobile-card">
               <div class="mobile-card__top">

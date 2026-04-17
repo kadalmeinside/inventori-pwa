@@ -391,5 +391,45 @@ body > * { position: relative; z-index: 1; }
     padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
   }
+
+  /* Stretch layout to the edges on mobile */
+  .page-wrap, .dashboard, .profile-wrap {
+    padding-left: 0.35rem !important;
+    padding-right: 0.35rem !important;
+  }
+
+  /* Make title fonts smaller */
+  .page-header__title, .dashboard__title, .profile-header__title {
+    font-size: 1.25rem !important;
+  }
+  .page-header__eyebrow, .dashboard__greeting {
+    font-size: 0.65rem !important;
+  }
+
+  /* Content fonts smaller on mobile */
+  .mobile-card__name {
+    font-size: 0.95rem !important;
+  }
+  .kpi-card__value {
+    font-size: 1.25rem !important;
+  }
+  
+  .td-mono, .td-name, .td-white, .td-unit {
+    font-size: 0.75rem !important;
+  }
+
+  .meta-chip, .kpi-card__label, .badge, .td-unit {
+    font-size: 0.65rem !important;
+  }
+
+  /* Adjust cards */
+  .mobile-card {
+    padding: 0.875rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .glass-card {
+    border-radius: 0.875rem !important;
+  }
 }
 

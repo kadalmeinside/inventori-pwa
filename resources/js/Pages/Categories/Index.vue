@@ -49,7 +49,7 @@
         </div>
 
         <!-- Mobile -->
-        <div class="block md:hidden p-4">
+        <div class="block md:hidden p-2">
           <div class="mobile-list">
             <div v-for="cat in categories.data" :key="'m-'+cat.id" class="mobile-card">
               <div class="mobile-card__top">

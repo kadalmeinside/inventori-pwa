@@ -78,7 +78,7 @@
         </div>
 
         <!-- Mobile Cards -->
-        <div class="block md:hidden p-4">
+        <div class="block md:hidden p-2">
           <div class="mobile-list">
             <div v-for="entry in stocks.data" :key="'m-'+entry.id" class="mobile-card" :class="entry.quantity <= entry.product.min_stock ? 'mobile-card--alert' : ''">
               <div class="mobile-card__top">

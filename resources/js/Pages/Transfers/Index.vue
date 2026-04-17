@@ -67,7 +67,7 @@
         </div>
 
         <!-- Mobile Cards -->
-        <div class="block md:hidden p-4">
+        <div class="block md:hidden p-2">
           <div class="mobile-list">
             <div v-for="transfer in transfers.data" :key="'m-'+transfer.id" class="mobile-card">
               <div class="mobile-card__top">
