@@ -151,25 +151,30 @@
       <slot />
     </main>
 
-    <!-- ─── Live Pusher Toast ─────────────────────────────────────────────── -->
-    <Transition name="toast">
-      <div v-if="liveToast" class="toast" :class="'toast--' + liveToast.type" role="alert">
-        <span class="toast__icon">{{ liveToast.type === 'success' ? '✅' : (liveToast.type === 'error' ? '❌' : '🔔') }}</span>
-        {{ liveToast.message }}
-      </div>
-    </Transition>
+    <!-- Toasts di-teleport ke body: di iOS, position:fixed dalam flex layout sering salah/terpotong -->
+    <Teleport to="body">
+      <div class="toast-root" aria-live="polite">
+        <!-- ─── Live Pusher Toast ─────────────────────────────────────────────── -->
+        <Transition name="toast">
+          <div v-if="liveToast" class="toast" :class="'toast--' + liveToast.type" role="alert">
+            <span class="toast__icon">{{ liveToast.type === 'success' ? '✅' : (liveToast.type === 'error' ? '❌' : '🔔') }}</span>
+            {{ liveToast.message }}
+          </div>
+        </Transition>
 
-    <!-- ─── Flash Toast (from server redirect) ────────────────────────────── -->
-    <Transition name="toast">
-      <div v-if="!liveToast && flash.success" class="toast toast--success" role="alert">
-        <span class="toast__icon">✅</span> {{ flash.success }}
+        <!-- ─── Flash Toast (from server redirect) ────────────────────────────── -->
+        <Transition name="toast">
+          <div v-if="!liveToast && flash.success" class="toast toast--success" role="alert">
+            <span class="toast__icon">✅</span> {{ flash.success }}
+          </div>
+        </Transition>
+        <Transition name="toast">
+          <div v-if="!liveToast && flash.error" class="toast toast--error" role="alert">
+            <span class="toast__icon">❌</span> {{ flash.error }}
+          </div>
+        </Transition>
       </div>
-    </Transition>
-    <Transition name="toast">
-      <div v-if="!liveToast && flash.error" class="toast toast--error" role="alert">
-        <span class="toast__icon">❌</span> {{ flash.error }}
-      </div>
-    </Transition>
+    </Teleport>
 
     <!-- ─── Global Mobile Nav (always present on all pages) ──────────────── -->
     <!-- ─── Global Mobile Nav (always present on all pages) ──────────────── -->
@@ -538,20 +543,45 @@ const userRole = computed(() => {
   min-width: 0;
 }
 
+/* ─── Toast (portal ke body; root tidak menangkap klik di luar toast) ───── */
+.toast-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  box-sizing: border-box;
+  /* Hindari left+right+fit-content di Android (sering melebar full-width) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: max(1.25rem, env(safe-area-inset-top, 0px));
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+}
+
+.toast-root .toast {
+  pointer-events: auto;
+}
+
+@media (min-width: 640px) {
+  .toast-root {
+    align-items: flex-end;
+  }
+}
+
 /* ─── Toast ──────────────────────────────────────────────────────────────── */
 .toast {
-  position: fixed;
-  top: max(1.25rem, env(safe-area-inset-top, 1.25rem));
-  left: 1.25rem;
-  right: 1.25rem;
-  margin: 0 auto;
-  width: fit-content;
-  max-width: calc(100vw - 2.5rem);
+  position: relative;
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  min-width: 0;
+  width: auto;
+  /* Lebar mengikuti konten, dibatasi kolom padding + cap desain */
+  max-width: min(22.5rem, 100%);
   padding: 0.875rem 1.25rem;
   border-radius: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  z-index: 99999;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -561,20 +591,8 @@ const userRole = computed(() => {
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,255,1);
   color: rgba(0, 0, 0, 0.80);
-  word-break: break-word; /* Ensure long words wrap */
-}
-
-@media (min-width: 400px) {
-  .toast {
-    max-width: 360px;
-  }
-}
-
-@media (min-width: 640px) {
-  .toast {
-    left: auto;
-    right: 1.25rem;
-  }
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .toast--success { border-left: 3px solid var(--ios-green); }
