@@ -332,28 +332,6 @@ body > * { position: relative; z-index: 1; }
   letter-spacing: 0.04em;
 }
 
-/* ─── Toast ──────────────────────────────────────────────────────────────── */
-.toast {
-  position: fixed;
-  top: 1.25rem;
-  right: 1.25rem;
-  padding: 0.875rem 1.25rem;
-  border-radius: var(--radius-lg);
-  font-size: 0.875rem;
-  font-weight: 500;
-  z-index: 9999;
-  max-width: 360px;
-  background: var(--glass-bg-strong);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow-lg);
-  color: var(--text-primary);
-}
-
-.toast--success { border-left: 3px solid var(--ios-green); }
-.toast--error   { border-left: 3px solid var(--ios-red); }
-.toast--info    { border-left: 3px solid var(--ios-blue); }
 
 /* ─── Input Locked (readonly mimic) ─────────────────────────────────────── */
 .input-ios--locked {
@@ -368,19 +346,6 @@ body > * { position: relative; z-index: 1; }
 
 /* ─── Mobile Responsive — Global ────────────────────────────────────────── */
 @media (max-width: 767px) {
-
-  /* Toast: lebih kecil, tidak stretch di bawah layar pada mobile */
-  .toast {
-    top: auto;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: max-content;
-    max-width: 90vw;
-    font-size: 0.8125rem;
-    padding: 0.625rem 1rem;
-  }
 
   /* Button text lebih kecil di mobile */
   .btn-ios {
