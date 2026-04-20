@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -47,5 +48,21 @@ class Warehouse extends Model
     public function incomingTransfers(): HasMany
     {
         return $this->hasMany(StockTransfer::class, 'destination_warehouse_id');
+    }
+
+    // ─── Query Scopes ────────────────────────────────────────────────────────
+
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        return $query->whereKey($user->warehouse_id);
+    }
+
+    public function scopeOrderedByName(Builder $query): Builder
+    {
+        return $query->orderBy('name');
     }
 }

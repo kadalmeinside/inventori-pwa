@@ -24,17 +24,29 @@ class StockOutController extends Controller
         $user = $request->user();
 
         $query = StockOut::with(['product', 'warehouse', 'requester'])
-            ->when($user->role->value === 'branch_admin', function ($q) use ($user) {
-                $q->where('warehouse_id', $user->warehouse_id);
-            });
+            ->visibleToUser($user);
 
         $stockOuts = $query->latest('created_at')->paginate(15);
 
+        $warehouses = Warehouse::query()
+            ->visibleToUser($user)
+            ->orderedByName()
+            ->get(['id', 'name']);
+
+        $products = \App\Models\Product::query()
+            ->active()
+            ->orderedByName()
+            ->get(['id', 'name', 'sku', 'unit']);
+
+        $stocks = StockEntry::query()
+            ->visibleToUser($user)
+            ->get(['warehouse_id', 'product_id', 'quantity']);
+
         return Inertia::render('StockOuts/Index', [
             'stockOuts'  => $stockOuts,
-            'warehouses' => Warehouse::all(),
-            'products'   => \App\Models\Product::all(['id', 'name', 'sku', 'unit']),
-            'stocks'     => StockEntry::all(['warehouse_id', 'product_id', 'quantity']),
+            'warehouses' => $warehouses,
+            'products'   => $products,
+            'stocks'     => $stocks,
         ]);
     }
 

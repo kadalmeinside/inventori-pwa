@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StockMovementType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,5 +63,16 @@ class InventoryLog extends Model
     public function reference(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    // ─── Query Scopes ────────────────────────────────────────────────────────
+
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        return $query->where('warehouse_id', $user->warehouse_id);
     }
 }

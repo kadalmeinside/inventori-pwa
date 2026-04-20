@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TransferStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -74,5 +75,19 @@ class StockTransfer extends Model
     public function isReceived(): bool
     {
         return $this->status === TransferStatus::Received;
+    }
+
+    // ─── Query Scopes ────────────────────────────────────────────────────────
+
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('source_warehouse_id', $user->warehouse_id)
+                ->orWhere('destination_warehouse_id', $user->warehouse_id);
+        });
     }
 }

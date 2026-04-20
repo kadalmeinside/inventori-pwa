@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StockOutStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -68,5 +69,16 @@ class StockOut extends Model
     public function isApproved(): bool
     {
         return $this->status === StockOutStatus::Approved;
+    }
+
+    // ─── Query Scopes ────────────────────────────────────────────────────────
+
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        return $query->where('warehouse_id', $user->warehouse_id);
     }
 }

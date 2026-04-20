@@ -13,10 +13,10 @@ class ProductController extends Controller
     {
         if ($request->user()->role->value !== 'super_admin') abort(403);
 
-        $products = Product::with('category')->latest()->paginate(15);
+        $products = Product::with('category')->orderedByName()->paginate(15);
         return Inertia::render('Products/Index', [
             'products' => $products,
-            'categories' => \App\Models\Category::where('is_active', true)->get(['id', 'name'])
+            'categories' => \App\Models\Category::where('is_active', true)->orderBy('name')->get(['id', 'name'])
         ]);
     }
 

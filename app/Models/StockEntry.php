@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -54,5 +55,16 @@ class StockEntry extends Model
     public function isBelowMinStock(): bool
     {
         return $this->quantity < $this->product->min_stock;
+    }
+
+    // ─── Query Scopes ────────────────────────────────────────────────────────
+
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        return $query->where('warehouse_id', $user->warehouse_id);
     }
 }

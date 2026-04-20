@@ -45,11 +45,20 @@ class StockController extends Controller
             $stocks = $query->orderBy('warehouse_id')->paginate(15)->withQueryString();
         }
 
+        $warehouses = \App\Models\Warehouse::query()
+            ->visibleToUser($user)
+            ->orderedByName()
+            ->get(['id', 'name']);
+
         return Inertia::render('Stocks/Index', [
             'stocks' => $stocks,
             'filters' => $request->only('search', 'warehouse_id', 'view_mode'),
-            'warehouses' => \App\Models\Warehouse::all(),
-            'products' => \App\Models\Product::with('category')->get(['id', 'name', 'sku', 'category_id']),
+            'warehouses' => $warehouses,
+            'products' => \App\Models\Product::query()
+                ->with('category')
+                ->active()
+                ->orderedByName()
+                ->get(['id', 'name', 'sku', 'category_id']),
         ]);
     }
 

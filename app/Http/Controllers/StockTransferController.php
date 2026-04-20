@@ -25,23 +25,26 @@ class StockTransferController extends Controller
         $user = $request->user();
         
         $query = StockTransfer::with(['product', 'sourceWarehouse', 'destinationWarehouse', 'requester'])
-            ->when($user->role->value === 'branch_admin', function ($q) use ($user) {
-                // Branch admins can only see transfers related to their warehouse
-                $q->where('source_warehouse_id', $user->warehouse_id)
-                  ->orWhere('destination_warehouse_id', $user->warehouse_id);
-            });
+            ->visibleToUser($user);
             
         $transfers = $query->latest('created_at')->paginate(15)->withQueryString();
 
-        // Pass warehouse and product lists for the Initiate Transfer modal
-        $warehouses = Warehouse::all();
-        $products   = \App\Models\Product::all(['id', 'name', 'sku']);
+        // Pass warehouse and product lists for the Initiate Transfer modal.
+        // Branch admins only receive their own stock dataset.
+        $warehouses = Warehouse::query()->orderedByName()->get(['id', 'name']);
+        $products = \App\Models\Product::query()
+            ->active()
+            ->orderedByName()
+            ->get(['id', 'name', 'sku']);
+        $stocks = StockEntry::query()
+            ->visibleToUser($user)
+            ->get(['warehouse_id', 'product_id', 'quantity']);
 
         return Inertia::render('Transfers/Index', [
             'transfers'  => $transfers,
             'warehouses' => $warehouses,
             'products'   => $products,
-            'stocks'     => StockEntry::all(['warehouse_id', 'product_id', 'quantity']),
+            'stocks'     => $stocks,
         ]);
     }
 

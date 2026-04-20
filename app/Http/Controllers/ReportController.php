@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventoryLog;
+use App\Models\StockOut;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -68,6 +69,7 @@ class ReportController extends Controller
         }
 
         $query = InventoryLog::with(['product', 'warehouse', 'creator', 'reference'])
+            ->visibleToUser($user)
             ->when($warehouseId, fn($q) => $q->where('warehouse_id', $warehouseId))
             ->whereBetween('created_at', [$from, $to]);
 
@@ -82,21 +84,25 @@ class ReportController extends Controller
         }
 
         // ─── Metrics ────────────────────────────────────────────────────────
-        $metricsQuery = InventoryLog::when($warehouseId, fn($q) => $q->where('warehouse_id', $warehouseId))
+        $metricsQuery = InventoryLog::query()
+            ->visibleToUser($user)
+            ->when($warehouseId, fn($q) => $q->where('warehouse_id', $warehouseId))
             ->whereBetween('created_at', [$from, $to]);
 
         $inTotal = (clone $metricsQuery)->whereIn('movement_type', ['stock_in', 'transfer_in'])->sum('quantity');
         $outTotal = (clone $metricsQuery)->whereIn('movement_type', ['stock_out', 'transfer_out'])->sum('quantity');
         
-        $stockOutBreakdown = DB::table('stock_outs')
+        $stockOutBreakdown = StockOut::query()
+            ->visibleToUser($user)
             ->when($warehouseId, fn($q) => $q->where('warehouse_id', $warehouseId))
             ->whereBetween('created_at', [$from, $to])
-            ->select('category', DB::raw('SUM(quantity) as total_quantity'))
+            ->selectRaw('category, SUM(quantity) as total_quantity')
             ->groupBy('category')
             ->get();
 
         // ─── Current Stock Analytics ───────────────────────────────────────
         $currentStocks = \App\Models\StockEntry::with(['product', 'warehouse'])
+            ->visibleToUser($user)
             ->when($warehouseId, fn($q) => $q->where('warehouse_id', $warehouseId))
             ->get();
         
@@ -131,8 +137,13 @@ class ReportController extends Controller
                 'product_id' => $productId,
             ],
             'availableMonths' => $availableMonths,
-            'warehouses' => $user->isSuperAdmin() ? Warehouse::all(['id', 'name']) : [],
-            'products' => \App\Models\Product::all(['id', 'name', 'sku']),
+            'warehouses' => $user->isSuperAdmin()
+                ? Warehouse::query()->orderedByName()->get(['id', 'name'])
+                : [],
+            'products' => \App\Models\Product::query()
+                ->active()
+                ->orderedByName()
+                ->get(['id', 'name', 'sku']),
         ]);
     }
 }

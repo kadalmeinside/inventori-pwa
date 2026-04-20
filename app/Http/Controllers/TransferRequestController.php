@@ -22,19 +22,30 @@ class TransferRequestController extends Controller
     public function index(Request $request): Response
     {
         $user  = $request->user();
-        $query = TransferRequest::with(['requester', 'fromWarehouse', 'toWarehouse', 'product', 'reviewer']);
-
-        if ($user->role->value === 'branch_admin') {
-            $query->where('to_warehouse_id', $user->warehouse_id);
-        }
+        $query = TransferRequest::with(['requester', 'fromWarehouse', 'toWarehouse', 'product', 'reviewer'])
+            ->visibleToUser($user);
 
         $requests = $query->latest()->paginate(15);
 
+        $warehouses = Warehouse::query()
+            ->visibleToUser($user)
+            ->orderedByName()
+            ->get(['id', 'name']);
+
+        $products = \App\Models\Product::query()
+            ->active()
+            ->orderedByName()
+            ->get(['id', 'name', 'sku', 'unit']);
+
+        $stocks = StockEntry::query()
+            ->visibleToUser($user)
+            ->get(['warehouse_id', 'product_id', 'quantity']);
+
         return Inertia::render('TransferRequests/Index', [
             'requests'   => $requests,
-            'warehouses' => Warehouse::all(),
-            'products'   => \App\Models\Product::all(['id', 'name', 'sku', 'unit']),
-            'stocks'     => StockEntry::all(['warehouse_id', 'product_id', 'quantity']),
+            'warehouses' => $warehouses,
+            'products'   => $products,
+            'stocks'     => $stocks,
         ]);
     }
 
