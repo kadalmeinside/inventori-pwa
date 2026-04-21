@@ -281,11 +281,22 @@ class PushNotificationService
     {
         $d = str_pad($this->b64uDecode($base64url), 32, "\x00", STR_PAD_LEFT);
 
-        $der = "\x30\x41"               // SEQUENCE (65 bytes total)
-             . "\x02\x01\x01"          // INTEGER version = 1
-             . "\x04\x20" . $d         // OCTET STRING private key (32 bytes)
-             . "\xa0\x0a\x06\x08"      // [0] OID tag
-             . "\x2a\x86\x48\xce\x3d\x03\x01\x07"; // OID 1.2.840.10045.3.1.7 (P-256)
+        // ECPrivateKey DER (RFC 5915):
+        // Content = version(3) + privateKey(34) + parameters[0](12) = 49 bytes = 0x31
+        //
+        // 30 31       SEQUENCE, length 49
+        //   02 01 01  INTEGER version=1
+        //   04 20 [d] OCTET STRING, 32-byte private scalar
+        //   a0 0a     [0] EXPLICIT, length 10
+        //     06 08   OID, length 8
+        //     2a 86 48 ce 3d 03 01 07  P-256 OID (1.2.840.10045.3.1.7)
+
+        $der = "\x30\x31"                             // SEQUENCE, length=49 (0x31)
+             . "\x02\x01\x01"                        // version = 1
+             . "\x04\x20" . $d                       // privateKey (32 bytes)
+             . "\xa0\x0a"                            // [0] EXPLICIT, length=10
+             . "\x06\x08"                            // OID tag + length=8
+             . "\x2a\x86\x48\xce\x3d\x03\x01\x07"; // P-256 OID
 
         return "-----BEGIN EC PRIVATE KEY-----\n"
              . chunk_split(base64_encode($der), 64, "\n")
