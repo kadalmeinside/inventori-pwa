@@ -44,6 +44,9 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
 
     // Profile page
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+
+    // ─── Push Notification Subscriptions ────────────────────────────────────
+    Route::get('/push-subscriptions/check', [App\Http\Controllers\PushSubscriptionController::class, 'check'])->name('push.check');
 });
 
 // ─── Write routes (20 req/menit) ─────────────────────────────────────────────
@@ -51,6 +54,10 @@ Route::middleware(['auth', 'verified', 'throttle:20,1'])->group(function () {
 
     // Stock In
     Route::post('/stocks/in', [App\Http\Controllers\StockController::class, 'store'])->name('stocks.in');
+
+    // ─── Push Subscriptions (opt-in / opt-out) ───────────────────────────────
+    Route::post('/push-subscriptions', [App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.store');
+    Route::delete('/push-subscriptions', [App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.destroy');
 
     // Stock Out — Pemotongan langsung
     Route::post('/stock-outs', [App\Http\Controllers\StockOutController::class, 'store'])->name('stock-outs.store');

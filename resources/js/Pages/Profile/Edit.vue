@@ -34,6 +34,56 @@
         <UpdatePasswordForm />
       </section>
 
+      <!-- ─── Notification Settings ──────────────────────────────────────── -->
+      <section class="glass-section">
+        <div class="section-label">
+          <div class="section-label__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          Notification Settings
+        </div>
+
+        <!-- Push Notification Toggle -->
+        <div class="notif-row">
+          <div class="notif-row__info">
+            <p class="notif-row__title">Push Notification</p>
+            <p class="notif-row__desc">
+              <template v-if="needsInstallForPush">
+                ⚠️ Tambahkan aplikasi ke Home Screen terlebih dahulu (iOS).
+              </template>
+              <template v-else-if="!isSupported">
+                Browser Anda tidak mendukung push notification.
+              </template>
+              <template v-else-if="permission === 'denied'">
+                ❌ Izin notifikasi diblokir. Aktifkan dari pengaturan browser.
+              </template>
+              <template v-else-if="isSubscribed">
+                ✅ Notifikasi aktif — Anda akan menerima update penting.
+              </template>
+              <template v-else>
+                Terima notifikasi meski aplikasi ditutup.
+              </template>
+            </p>
+          </div>
+
+          <!-- Toggle Switch -->
+          <div class="notif-toggle-wrap">
+            <button
+              v-if="canSubscribe || isSubscribed"
+              :disabled="isLoading || !canSubscribe && !isSubscribed"
+              :class="['notif-toggle', isSubscribed ? 'notif-toggle--on' : 'notif-toggle--off']"
+              @click="isSubscribed ? unsubscribe() : subscribe()"
+              :aria-label="isSubscribed ? 'Nonaktifkan notifikasi' : 'Aktifkan notifikasi'"
+              id="push-toggle-btn"
+            >
+              <span v-if="isLoading" class="notif-toggle__spinner" />
+              <span v-else class="notif-toggle__thumb" />
+            </button>
+            <span v-else class="notif-badge-unsupported">Tidak didukung</span>
+          </div>
+        </div>
+      </section>
+
     </div>
   </AppLayout>
 </template>
@@ -44,6 +94,7 @@ import { usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
+import { usePushNotification } from '@/Composables/usePushNotification.js';
 
 defineProps({ mustVerifyEmail: Boolean, status: String });
 
@@ -52,6 +103,17 @@ const userInitials = computed(() => {
   const name = page.props.auth?.user?.name ?? 'U';
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 });
+
+const {
+  isSupported,
+  isSubscribed,
+  isLoading,
+  canSubscribe,
+  needsInstallForPush,
+  permission,
+  subscribe,
+  unsubscribe,
+} = usePushNotification();
 </script>
 
 <style scoped>
@@ -109,5 +171,84 @@ const userInitials = computed(() => {
   align-items: center;
   justify-content: center;
   color: #007AFF;
+}
+
+/* ─── Notification Row ───────────────────────────────────────────────────── */
+.notif-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.notif-row__info { flex: 1; min-width: 0; }
+.notif-row__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.75);
+  margin: 0 0 0.25rem;
+}
+.notif-row__desc {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.notif-toggle-wrap { flex-shrink: 0; }
+
+/* iOS-style toggle switch */
+.notif-toggle {
+  position: relative;
+  width: 3rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  padding: 0 0.2rem;
+}
+.notif-toggle--off {
+  background: rgba(0, 0, 0, 0.15);
+  justify-content: flex-start;
+}
+.notif-toggle--on {
+  background: #34C759;
+  justify-content: flex-end;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.4);
+}
+.notif-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.notif-toggle__thumb {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  display: block;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.notif-toggle__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  margin: auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.notif-badge-unsupported {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
 }
 </style>

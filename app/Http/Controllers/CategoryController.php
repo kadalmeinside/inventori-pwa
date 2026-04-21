@@ -7,15 +7,14 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
     public function index(Request $request)
     {
         // Only Super Admin can manage Categories
-        if ($request->user()->role->value !== 'super_admin') {
-            abort(403, 'Unauthorized access.');
-        }
+        Gate::authorize('viewAny', Category::class);
 
         $categories = Category::latest()->paginate(15);
         return Inertia::render('Categories/Index', [
@@ -25,7 +24,7 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->user()->role->value !== 'super_admin') abort(403);
+        Gate::authorize('create', Category::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -42,7 +41,7 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
-        if ($request->user()->role->value !== 'super_admin') abort(403);
+        Gate::authorize('update', $category);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -59,7 +58,7 @@ class CategoryController extends Controller
 
     public function destroy(Request $request, Category $category)
     {
-        if ($request->user()->role->value !== 'super_admin') abort(403);
+        Gate::authorize('delete', $category);
 
         $category->delete(); // Or handle if products exist? Better handle foreign key error or check first.
         return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');

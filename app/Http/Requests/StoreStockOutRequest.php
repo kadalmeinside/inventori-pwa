@@ -8,7 +8,15 @@ class StoreStockOutRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Policy handled in controller
+        $user = $this->user();
+        $warehouseId = $this->input('warehouse_id');
+
+        // Branch Admin can only stock out from their own warehouse
+        if ($user->role->value === 'branch_admin' && $user->warehouse_id != $warehouseId) {
+            return false;
+        }
+
+        return true;
     }
 
     public function rules(): array

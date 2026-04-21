@@ -7,6 +7,7 @@ use App\Http\Requests\StoreStockTransferRequest;
 use App\Models\StockTransfer;
 use App\Models\StockEntry;
 use App\Models\Warehouse;
+use App\Services\PushNotificationService;
 use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,10 @@ use Inertia\Response;
 
 class StockTransferController extends Controller
 {
-    public function __construct(private readonly StockMovementService $service) {}
+    public function __construct(
+        private readonly StockMovementService    $service,
+        private readonly PushNotificationService $push,
+    ) {}
 
     /**
      * Display a paginated listing of stock transfers.
@@ -85,6 +89,16 @@ class StockTransferController extends Controller
 
         try {
             $this->service->receiveTransfer($stockTransfer, $request->user());
+
+            // ─── Push Notification ke Super Admin (konfirmasi penerimaan) ─────────
+            $stockTransfer->loadMissing(['product', 'destinationWarehouse']);
+            $this->push->sendToSuperAdmins([
+                'title' => "🏭 Transfer Diterima",
+                'body'  => "Cabang {$stockTransfer->destinationWarehouse->name} menerima {$stockTransfer->product->name} \u00d7{$stockTransfer->quantity}.",
+                'url'   => '/transfers',
+                'tag'   => "transfer-received-{$stockTransfer->id}",
+            ]);
+
             return redirect()->back()->with('success', 'Transfer received. Destination stock updated.');
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());

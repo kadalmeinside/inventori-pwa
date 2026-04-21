@@ -6,6 +6,7 @@ use App\Http\Requests\StoreStockOutRequest;
 use App\Models\StockEntry;
 use App\Models\StockOut;
 use App\Models\Warehouse;
+use App\Services\PushNotificationService;
 use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,10 @@ use Inertia\Response;
 
 class StockOutController extends Controller
 {
-    public function __construct(private readonly StockMovementService $service) {}
+    public function __construct(
+        private readonly StockMovementService    $service,
+        private readonly PushNotificationService $push,
+    ) {}
 
     /**
      * Display a listing of stock out history.
@@ -59,11 +63,6 @@ class StockOutController extends Controller
         $user      = $request->user();
         $warehouse = Warehouse::findOrFail($request->warehouse_id);
 
-        // Branch Admin can only stock out from their own warehouse
-        if ($user->role->value === 'branch_admin' && $user->warehouse_id != $warehouse->id) {
-            abort(403, 'You can only manage stock in your own warehouse.');
-        }
-
         try {
             $this->service->instantStockOut(
                 warehouse:   $warehouse,
@@ -74,12 +73,21 @@ class StockOutController extends Controller
                 reason:      $request->reason,
             );
 
-            // Notify Super Admin instantly
+            // Notify Super Admin instantly (Pusher toast)
             \App\Events\SystemNotification::dispatch(
                 'superadmin',
                 "Cabang {$warehouse->name} baru saja mencatat Stock Out sebesar {$request->quantity} item.",
                 'info'
             );
+
+            // ─── Push Notification ke Super Admin (background push) ────────────
+            $productName = \App\Models\Product::find($request->product_id)?->name ?? 'Produk';
+            $this->push->sendToSuperAdmins([
+                'title' => "📄 Stock Out Baru",
+                'body'  => "Cabang {$warehouse->name}: {$productName} \u00d7{$request->quantity} dicatat keluar.",
+                'url'   => '/stock-outs',
+                'tag'   => 'stock-out-new',
+            ]);
 
             return redirect()->back()->with('success', 'Stock Out recorded successfully.');
         } catch (\RuntimeException $e) {

@@ -18,6 +18,22 @@ class WarehousePolicy
     }
 
     /**
+     * Only Super Admin can manage warehouses in master data.
+     */
+    public function manage(User $user): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
+    /**
+     * Determine if user can add stock to a specific warehouse.
+     */
+    public function addStock(User $user, Warehouse $warehouse): bool
+    {
+        return $user->belongsToWarehouse($warehouse);
+    }
+
+    /**
      * Only Super Admin can create warehouses.
      */
     public function create(User $user): bool

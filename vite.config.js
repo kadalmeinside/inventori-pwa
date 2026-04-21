@@ -20,50 +20,17 @@ export default defineConfig({
     }),
 
     VitePWA({
-      // Register the service worker automatically
+      // Use injectManifest so our custom SW can handle push events
+      // while Workbox still injects the precache manifest
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'resources/js',
+      filename: 'sw.js',
 
-      // Use Workbox for caching strategies
-      workbox: {
-        navigateFallback: null,
-        // Disable static asset precaching (files live under /build/, not root)
-        // This prevents "bad-precaching-response" 404 errors
+      // injectManifest options: Workbox will inject the precache manifest
+      // into our custom sw.js (replaces the old `workbox` key)
+      injectManifest: {
         globPatterns: [],
-
-        // Runtime caching rules
-        runtimeCaching: [
-          {
-            // Cache Inertia API responses (JSON) with NetworkFirst
-            urlPattern: ({ request }) => request.headers.get('X-Inertia') === '1',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName:        'inertia-responses',
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries:       50,
-                maxAgeSeconds:    300, // 5 minutes
-              },
-            },
-          },
-          {
-            // Cache product images
-            urlPattern: /\.(?:png|jpg|jpeg|webp|svg|gif)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: {
-                maxEntries:       100,
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-              },
-            },
-          },
-          {
-            // Cache Google Fonts
-            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-stylesheets' },
-          },
-        ],
       },
 
       // Web App Manifest

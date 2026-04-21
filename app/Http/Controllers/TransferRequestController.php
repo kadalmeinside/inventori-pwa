@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\StockEntry;
 use App\Models\TransferRequest;
 use App\Models\Warehouse;
+use App\Services\PushNotificationService;
 use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Gate;
 
 class TransferRequestController extends Controller
 {
-    public function __construct(private readonly StockMovementService $service) {}
+    public function __construct(
+        private readonly StockMovementService    $service,
+        private readonly PushNotificationService $push,
+    ) {}
 
     /**
      * List all transfer requests.
@@ -57,9 +62,7 @@ class TransferRequestController extends Controller
     {
         $user = $request->user();
 
-        if ($user->role->value !== 'branch_admin') {
-            abort(403, 'Only Branch Admins can create transfer requests.');
-        }
+        Gate::authorize('create', TransferRequest::class);
 
         $data = $request->validate([
             'product_id' => ['required', 'integer', 'exists:products,id'],
@@ -83,6 +86,14 @@ class TransferRequestController extends Controller
             'info'
         );
 
+        // ─── Push Notification ke Super Admin ────────────────────────────────
+        $this->push->sendToSuperAdmins([
+            'title' => "📦 Request Transfer Baru",
+            'body'  => "Cabang {$user->warehouse->name} mengajukan permintaan transfer stok baru.",
+            'url'   => '/transfer-requests',
+            'tag'   => 'transfer-request-new',
+        ]);
+
         return redirect()->back()->with('success', 'Transfer request submitted. Awaiting approval.');
     }
 
@@ -91,9 +102,7 @@ class TransferRequestController extends Controller
      */
     public function approve(Request $request, TransferRequest $transferRequest): RedirectResponse
     {
-        if ($request->user()->role->value !== 'super_admin') {
-            abort(403, 'Only Super Admin can approve transfer requests.');
-        }
+        Gate::authorize('approve', $transferRequest);
 
         if (! $transferRequest->isPending()) {
             return redirect()->back()->with('error', 'This request has already been reviewed.');
@@ -133,6 +142,15 @@ class TransferRequestController extends Controller
                 'success'
             );
 
+            // ─── Push Notification ke Branch Admin requester ──────────────────
+            $transferRequest->loadMissing(['requester', 'product']);
+            $this->push->sendToUser($transferRequest->requester, [
+                'title' => "✅ Request Transfer Disetujui",
+                'body'  => "Permintaan {$transferRequest->product->name} \u00d7{$transferRequest->quantity} dari {$source->name} sedang dikirim.",
+                'url'   => '/transfer-requests',
+                'tag'   => "transfer-approved-{$transferRequest->id}",
+            ]);
+
             return redirect()->back()->with('success', 'Request approved. Transfer has been initiated.');
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -144,9 +162,7 @@ class TransferRequestController extends Controller
      */
     public function reject(Request $request, TransferRequest $transferRequest): RedirectResponse
     {
-        if ($request->user()->role->value !== 'super_admin') {
-            abort(403, 'Only Super Admin can reject transfer requests.');
-        }
+        Gate::authorize('reject', $transferRequest);
 
         if (! $transferRequest->isPending()) {
             return redirect()->back()->with('error', 'This request has already been reviewed.');
@@ -163,6 +179,15 @@ class TransferRequestController extends Controller
             "Mohon maaf, Request stok Anda Ditolak oleh Pusat.",
             'error'
         );
+
+        // ─── Push Notification ke Branch Admin requester ──────────────────────
+        $transferRequest->loadMissing(['requester', 'product']);
+        $this->push->sendToUser($transferRequest->requester, [
+            'title' => "❌ Request Transfer Ditolak",
+            'body'  => "Permintaan {$transferRequest->product->name} \u00d7{$transferRequest->quantity} tidak dapat diproses saat ini.",
+            'url'   => '/transfer-requests',
+            'tag'   => "transfer-rejected-{$transferRequest->id}",
+        ]);
 
         return redirect()->back()->with('success', 'Transfer request rejected.');
     }

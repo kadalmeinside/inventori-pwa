@@ -6,6 +6,8 @@ use App\Models\StockEntry;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\PushNotificationService;
+use Illuminate\Support\Facades\Gate;
 
 class StockController extends Controller
 {
@@ -15,17 +17,21 @@ class StockController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $isGlobal = $request->input('view_mode') === 'global' && $user->role->value === 'super_admin';
+        $isGlobal = $request->input('view_mode') === 'global' && $user->isSuperAdmin();
         $warehouseId = $request->input('warehouse_id');
         
-        $query = StockEntry::with(['product.category', 'warehouse'])
-            ->when($user->role->value === 'branch_admin', function ($q) use ($user) {
+        $query = StockEntry::with(['product.category'])
+            ->when($user->isBranchAdmin(), function ($q) use ($user) {
                 // Branch Admin data isolation
                 $q->where('warehouse_id', $user->warehouse_id);
             });
             
+        if (!$isGlobal) {
+            $query->with(['warehouse']);
+        }
+            
         // Super Admin Filter
-        if ($user->role->value === 'super_admin' && !$isGlobal && $warehouseId) {
+        if ($user->isSuperAdmin() && !$isGlobal && $warehouseId) {
             $query->where('warehouse_id', $warehouseId);
         }
             
@@ -77,9 +83,7 @@ class StockController extends Controller
         $warehouse = \App\Models\Warehouse::findOrFail($validated['warehouse_id']);
         
         // Ensure user belongs to the warehouse they are adding stock to
-        if (!$request->user()->belongsToWarehouse($warehouse)) {
-            abort(403, 'Unauthorized action.');
-        }
+        Gate::authorize('addStock', $warehouse);
 
         try {
             $service->stockIn(
@@ -91,16 +95,25 @@ class StockController extends Controller
             );
 
             // Notify Super Admin if Branch Admin adds stock directly
-            if ($request->user()->role->value === 'branch_admin') {
+            if ($request->user()->isBranchAdmin()) {
                 \App\Events\SystemNotification::dispatch(
                     'superadmin',
                     "Cabang {$warehouse->name} baru saja melakukan Menerima Stok sebesar {$validated['quantity']} item.",
                     'success'
                 );
+
+                // ─── Push Notification ke Super Admin ────────────────────────────
+                $productName = \App\Models\Product::find($validated['product_id'])?->name ?? 'Produk';
+                app(PushNotificationService::class)->sendToSuperAdmins([
+                    'title' => "⬆️ Stock In Baru",
+                    'body'  => "Cabang {$warehouse->name}: {$productName} \u00d7{$validated['quantity']} diterima.",
+                    'url'   => '/stocks',
+                    'tag'   => 'stock-in-new',
+                ]);
             }
 
             return redirect()->back()->with('success', 'Stock Received Successfully.');
-        } catch (\Exception $e) {
+        } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }

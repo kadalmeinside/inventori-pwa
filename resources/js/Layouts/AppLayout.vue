@@ -205,15 +205,19 @@
 
     <!-- ─── PWA Install Prompt ────────────────────────────────────────────── -->
     <InstallPrompt />
+
+    <!-- ─── PWA Push Notification Opt-in Banner ──────────────────────────── -->
+    <PushNotificationPrompt />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Head, Link, usePage, router } from '@inertiajs/vue3'
-import MobileNav     from '@/Components/MobileNav.vue'
-import InstallPrompt from '@/Components/InstallPrompt.vue'
-import Modal         from '@/Components/Modal.vue'
+import MobileNav              from '@/Components/MobileNav.vue'
+import InstallPrompt          from '@/Components/InstallPrompt.vue'
+import Modal                  from '@/Components/Modal.vue'
+import PushNotificationPrompt from '@/Components/PushNotificationPrompt.vue'
 
 defineProps({
   title: { type: String, default: 'Inventori IMS' },

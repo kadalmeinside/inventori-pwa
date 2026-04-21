@@ -108,9 +108,14 @@ class ReportController extends Controller
         
         $lowStockCount = $currentStocks->filter(fn($entry) => $entry->quantity < $entry->product->min_stock)->count();
 
+        $isSqlite = DB::getDriverName() === 'sqlite';
+        $monthSelect = $isSqlite 
+            ? "strftime('%Y-%m', created_at) as month"
+            : "DATE_FORMAT(created_at, '%Y-%m') as month";
+
         // Available Months for dropdown (from inventory logs)
         $availableMonths = DB::table('inventory_logs')
-            ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'))
+            ->select(DB::raw($monthSelect))
             ->groupBy('month')
             ->orderBy('month', 'desc')
             ->pluck('month');

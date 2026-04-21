@@ -6,12 +6,13 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->user()->role->value !== 'super_admin') abort(403);
+        Gate::authorize('viewAny', Product::class);
 
         $products = Product::with('category')->orderedByName()->paginate(15);
         return Inertia::render('Products/Index', [
@@ -22,7 +23,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->user()->role->value !== 'super_admin') abort(403);
+        Gate::authorize('create', Product::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -40,7 +41,7 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        if ($request->user()->role->value !== 'super_admin') abort(403);
+        Gate::authorize('update', $product);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -58,7 +59,7 @@ class ProductController extends Controller
 
     public function destroy(Request $request, Product $product)
     {
-        if ($request->user()->role->value !== 'super_admin') abort(403);
+        Gate::authorize('delete', $product);
 
         $product->delete(); // Soft delete via model trait
         return redirect()->route('products.index')->with('success', 'Product set to inactive (soft deleted).');
