@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AppNotification;
 use App\Models\PushSubscription;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,10 @@ class PushNotificationService
 
     public function sendToUser(User $user, array $payload): void
     {
+        // Simpan ke DB sebagai in-app notification
+        $this->saveToDatabase($user->id, $payload);
+
+        // Kirim push ke semua device subscription
         foreach ($user->pushSubscriptions()->get() as $sub) {
             $this->sendToSubscription($sub, $payload);
         }
@@ -50,6 +55,26 @@ class PushNotificationService
             ->with('pushSubscriptions')
             ->get()
             ->each(fn ($u) => $this->sendToUser($u, $payload));
+    }
+
+    /**
+     * Simpan notifikasi ke tabel app_notifications (in-app inbox).
+     */
+    protected function saveToDatabase(int $userId, array $payload): void
+    {
+        try {
+            AppNotification::create([
+                'user_id' => $userId,
+                'title'   => $payload['title'] ?? 'Inventori IMS',
+                'body'    => $payload['body']  ?? '',
+                'icon'    => $payload['icon']  ?? '/icons/icon-192x192.png',
+                'url'     => $payload['url']   ?? '/',
+                'tag'     => $payload['tag']   ?? null,
+                'type'    => $payload['type']  ?? 'info',
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('[WebPush] Gagal simpan notifikasi ke DB: ' . $e->getMessage());
+        }
     }
 
     public function sendToSubscription(PushSubscription $subscription, array $payload): void

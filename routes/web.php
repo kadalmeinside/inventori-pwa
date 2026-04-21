@@ -47,6 +47,10 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
 
     // ─── Push Notification Subscriptions ────────────────────────────────────
     Route::get('/push-subscriptions/check', [App\Http\Controllers\PushSubscriptionController::class, 'check'])->name('push.check');
+
+    // ─── In-App Notifications ────────────────────────────────────────────────
+    Route::get('/notifications',             [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count',[App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
 });
 
 // ─── Write routes (20 req/menit) ─────────────────────────────────────────────
@@ -58,6 +62,12 @@ Route::middleware(['auth', 'verified', 'throttle:20,1'])->group(function () {
     // ─── Push Subscriptions (opt-in / opt-out) ───────────────────────────────
     Route::post('/push-subscriptions', [App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.store');
     Route::delete('/push-subscriptions', [App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.destroy');
+
+    // ─── Notification actions ────────────────────────────────────────────────
+    Route::patch('/notifications/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::patch('/notifications/read-all',            [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{notification}',     [App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications',                    [App\Http\Controllers\NotificationController::class, 'clearRead'])->name('notifications.clear');
 
     // Stock Out — Pemotongan langsung
     Route::post('/stock-outs', [App\Http\Controllers\StockOutController::class, 'store'])->name('stock-outs.store');

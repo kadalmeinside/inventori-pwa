@@ -133,6 +133,8 @@
               <p class="sidebar__user-name">{{ $page.props.auth.user.name }}</p>
               <p class="sidebar__user-role">{{ userRole }}</p>
             </Link>
+            <!-- Notification Bell (desktop sidebar) -->
+            <NotificationBell />
             <button @click="showLogoutConfirm = true" class="sidebar__logout" title="Logout">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
@@ -218,6 +220,7 @@ import MobileNav              from '@/Components/MobileNav.vue'
 import InstallPrompt          from '@/Components/InstallPrompt.vue'
 import Modal                  from '@/Components/Modal.vue'
 import PushNotificationPrompt from '@/Components/PushNotificationPrompt.vue'
+import NotificationBell       from '@/Components/NotificationBell.vue'
 
 defineProps({
   title: { type: String, default: 'Inventori IMS' },
