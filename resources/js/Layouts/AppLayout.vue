@@ -145,20 +145,6 @@
       </div>
     </aside>
 
-    <!-- ─── Floating Notification Bell + Page Topbar Actions ─────────────── -->
-    <div class="topbar-bell">
-      <!-- Tombol yang didaftarkan halaman (sebelah kiri bell) -->
-      <button
-        v-for="(act, i) in topbarActions"
-        :key="i"
-        class="topbar-action-btn"
-        :class="{ 'topbar-action-btn--active': act.active?.value ?? act.active }"
-        @click="act.action"
-        :aria-label="act.label"
-        v-html="act.icon"
-      />
-      <NotificationBell />
-    </div>
 
     <!-- ─── Main Content ──────────────────────────────────────────────────── -->
     <main id="main-content" class="layout-main">
@@ -236,11 +222,7 @@ import MobileNav              from '@/Components/MobileNav.vue'
 import InstallPrompt          from '@/Components/InstallPrompt.vue'
 import Modal                  from '@/Components/Modal.vue'
 import PushNotificationPrompt from '@/Components/PushNotificationPrompt.vue'
-import NotificationBell       from '@/Components/NotificationBell.vue'
 import MobileFab              from '@/Components/MobileFab.vue'
-import { useTopbarActionsState } from '@/Composables/useTopbarActions.js'
-
-const topbarActions = useTopbarActionsState()
 
 defineProps({
   title: { type: String, default: 'Inventori IMS' },
@@ -570,70 +552,9 @@ const userRole = computed(() => {
   min-width: 0;
 }
 
-/* ─── Floating Bell + Topbar Actions (top-right, semua perangkat) ─────── */
-.topbar-bell {
-  position: fixed;
-  top: 1.25rem;
-  right: max(1.25rem, env(safe-area-inset-right, 1.25rem));
-  z-index: 300;
-  display: flex;
-  flex-direction: row;        /* EKSPLISIT horizontal */
-  align-items: center;
-  gap: 0.35rem;               /* Jarak kecil antara icon */
-  flex-wrap: nowrap;
-  /* Pill background agar terlihat sebagai satu grup */
-  background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.9);
-  border-radius: 999px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06);
-  padding: 0.3rem;            /* Padding dalam pill */
-}
 
-/* Desktop: geser sedikit ke bawah agar tidak terlalu mepet tepi */
-@media (min-width: 768px) {
-  .topbar-bell {
-    top: 1.5rem;
-    right: 2rem;
-  }
-}
 
-/* Mobile: tepat di sudut kanan atas, dekat status bar */
-@media (max-width: 767px) {
-  .topbar-bell {
-    top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
-    right: max(0.75rem, env(safe-area-inset-right, 0.75rem));
-  }
-}
 
-/* Anak langsung tidak boleh shrink */
-.topbar-bell > * {
-  flex-shrink: 0;
-}
-
-/* Tombol aksi halaman di topbar (sebelah kiri bell) */
-.topbar-action-btn {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 999px;      /* Bulat penuh — konsisten dengan bell */
-  border: none;
-  background: transparent;   /* Pill sudah ada background, button transparan */
-  color: rgba(0,0,0,0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  flex-shrink: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-.topbar-action-btn:hover,
-.topbar-action-btn--active {
-  background: rgba(0,122,255,0.12);
-  color: #007AFF;
-}
 
 /* ─── Toast (portal ke body; root tidak menangkap klik di luar toast) ───── */
 .toast-root {

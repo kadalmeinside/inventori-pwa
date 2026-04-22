@@ -2,7 +2,7 @@
   <AppLayout title="Dashboard">
     <div class="dashboard">
       <!-- ─── Header ──────────────────────────────────────────────────── -->
-      <header class="dashboard__header">
+      <header class="dashboard__header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
         <div>
           <p class="dashboard__greeting">{{ greeting }}, {{ firstName }} </p>
           <h1 class="dashboard__title">Inventory Dashboard</h1>
@@ -12,6 +12,12 @@
               {{ warehouseName }}
             </span>
           </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="topbar-action-btn" title="Refresh" @click="$inertia.reload()" style="background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; width: 2.25rem; height: 2.25rem; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          </button>
+          <NotificationBell />
         </div>
       </header>
 
@@ -105,6 +111,7 @@
 import { computed } from 'vue'
 import { Link, usePage, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import NotificationBell from '@/Components/NotificationBell.vue'
 import StockAlertCard from '@/Components/StockAlertCard.vue'
 import { useStockAlerts } from '@/Composables/useStockAlerts'
 import { useTopbarActions } from '@/Composables/useTopbarActions'
@@ -121,15 +128,6 @@ const props = defineProps({
 
 const firstName      = computed(() => page.props.auth.user.name.split(' ')[0])
 const warehouseName  = computed(() => page.props.auth.user.warehouse?.name ?? null)
-
-// Register topbar actions
-useTopbarActions([
-  {
-    label: 'Refresh',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>`,
-    action: () => router.reload()
-  }
-]);
 
 const greeting = computed(() => {
   const h = new Date().getHours()

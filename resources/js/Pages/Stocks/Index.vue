@@ -30,9 +30,15 @@
             </template>
           </div>
           <template v-if="page.props.auth.user.role === 'super_admin'">
-            <button class="btn-ios btn-ios-glass btn-glass-toggle" @click="toggleGlobalView" :class="{ 'btn-active': viewMode === 'global' }">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-              <span class="btn-text">Global Summary</span>
+            <button class="btn-ios btn-ios-glass btn-glass-toggle" @click="toggleGlobalView" :class="{ 'btn-active': viewMode === 'global' }" style="display: flex; gap: 0.5rem;">
+              <template v-if="viewMode === 'global'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span class="btn-text" style="opacity: 1; max-width: 120px; font-size: 0.875rem;">Close Summary</span>
+              </template>
+              <template v-else>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                <span class="btn-text">Global Summary</span>
+              </template>
             </button>
           </template>
 
@@ -40,6 +46,10 @@
             <svg class="btn-receive-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
             <span class="btn-text">Receive Stock</span>
           </button>
+          
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+            <NotificationBell />
+          </div>
         </div>
       </div>
 
@@ -219,10 +229,11 @@
           </div>
           <div class="field">
             <InputLabel for="in_product" value="Product" />
-            <select id="in_product" v-model="inForm.product_id" class="input-ios" required>
-              <option disabled value="">Select product…</option>
-              <option v-for="prod in products" :key="prod.id" :value="prod.id">{{ prod.sku }} — {{ prod.name }}</option>
-            </select>
+            <SearchableSelect
+              v-model="inForm.product_id"
+              :options="products.map(p => ({ value: p.id, label: `${p.sku} — ${p.name}` }))"
+              placeholder="Search or select product…"
+            />
             <InputError :message="inForm.errors.product_id" />
           </div>
           <div class="field">
@@ -257,9 +268,9 @@ import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
 import InputError    from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SearchableSelect from '@/Components/SearchableSelect.vue';
 import { useMobileFab }      from '@/Composables/useMobileFab.js';
-import { useTopbarActions }  from '@/Composables/useTopbarActions.js';
-
+import NotificationBell      from '@/Components/NotificationBell.vue';
 const props = defineProps({ stocks: Object, filters: Object, warehouses: Array, products: Array });
 const page  = usePage();
 const search = ref(props.filters.search || '');
@@ -318,18 +329,7 @@ if (page.props.auth.user.role !== 'super_admin') {
   ])
 }
 
-// ─── Topbar Actions (tombol sebelah bell di mobile) ───────────────────────
-if (page.props.auth.user.role === 'super_admin') {
-  const refreshSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>`
-  useTopbarActions([
-    {
-      label: 'Global Summary',
-      icon:  refreshSvg,
-      active: computed(() => viewMode.value === 'global'),
-      action: toggleGlobalView,
-    },
-  ])
-}
+
 
 let echoChannel;
 onMounted(() => {
@@ -415,17 +415,21 @@ onUnmounted(() => {
 }
 
 /* Global Summary toggle: ikon bulat di mobile, teks penuh di desktop */
-/* btn-glass-toggle dan btn-receive DISEMBUNYIKAN dari page header:
-   - Desktop: sudah ada di topbar-bell via useTopbarActions
-   - Mobile: sudah ada di topbar-bell via useTopbarActions
-   - btn-receive Mobile: sudah digantikan FAB
-   Semua viewport → display:none dari page header */
-.btn-glass-toggle,
-.btn-receive {
-  display: none !important;
+.btn-glass-toggle {
+  grid-area: button;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  flex-shrink: 0;
 }
-
-
+.btn-glass-toggle.btn-active {
+  width: auto;
+}
 /* Search */
 .search-bar-group { grid-area: search; display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
 .search-wrap { position: relative; width: 100%; }

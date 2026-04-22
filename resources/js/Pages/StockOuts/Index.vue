@@ -2,15 +2,18 @@
   <AppLayout title="Stock Out">
     <div class="page-wrap">
 
-      <div class="page-header">
+      <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
         <div>
           <p class="page-eyebrow">Warehouse Operations</p>
           <h1 class="page-title">Stock Out</h1>
         </div>
-        <button class="btn-ios btn-ios-primary" @click="openModal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
-          Record Stock Out
-        </button>
+        <div style="display: flex; gap: 0.5rem; align-items: center; height: 100%;">
+          <button class="btn-ios btn-ios-primary" @click="openModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="btn-text" style="margin-left: 0.4rem;">Record Stock Out</span>
+          </button>
+          <NotificationBell />
+        </div>
       </div>
 
       <div class="glass-card">
@@ -142,10 +145,11 @@
               <!-- Product -->
               <div class="so-field">
                 <label class="so-field__label" for="so_product">Product</label>
-                <select id="so_product" v-model="form.product_id" class="input-ios" required>
-                  <option disabled value="">Select product…</option>
-                  <option v-for="p in products" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
-                </select>
+                <SearchableSelect
+                  v-model="form.product_id"
+                  :options="products.map(p => ({ value: p.id, label: `${p.sku} — ${p.name}` }))"
+                  placeholder="Search or select product…"
+                />
                 <InputError :message="form.errors.product_id" />
               </div>
             </div>
@@ -245,9 +249,10 @@ import AppLayout    from '@/Layouts/AppLayout.vue';
 import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal        from '@/Components/Modal.vue';
 import InputLabel   from '@/Components/InputLabel.vue';
-import InputError   from '@/Components/InputError.vue';
 import TextInput    from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import NotificationBell from '@/Components/NotificationBell.vue';
+import SearchableSelect from '@/Components/SearchableSelect.vue';
 
 const props = defineProps({ stockOuts: Object, warehouses: Array, products: Array, stocks: Array });
 const page  = usePage();

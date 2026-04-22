@@ -3,15 +3,18 @@
     <div class="page-wrap">
 
       <!-- Header -->
-      <div class="page-header">
+      <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
         <div>
           <p class="page-eyebrow">Logistics</p>
           <h1 class="page-title">Stock Transfers</h1>
         </div>
-        <button class="btn-ios btn-ios-primary" @click="openInitiateModal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
-          Initiate Transfer
-        </button>
+        <div style="display: flex; gap: 0.5rem; align-items: center; height: 100%;">
+          <button class="btn-ios btn-ios-primary" @click="openInitiateModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="btn-text" style="margin-left: 0.4rem;">Initiate Transfer</span>
+          </button>
+          <NotificationBell />
+        </div>
       </div>
 
       <!-- Table -->
@@ -168,10 +171,11 @@
             </div>
             <div class="field span-2">
               <InputLabel for="product" value="Product" />
-              <select id="product" v-model="form.product_id" class="input-ios" required>
-                <option disabled value="">Select product…</option>
-                <option v-for="item in products" :key="item.id" :value="item.id">{{ item.sku }} — {{ item.name }}</option>
-              </select>
+              <SearchableSelect
+                v-model="form.product_id"
+                :options="products.map(p => ({ value: p.id, label: `${p.sku} — ${p.name}` }))"
+                placeholder="Search or select product…"
+              />
               <InputError :message="form.errors.product_id" />
             </div>
 
@@ -260,11 +264,13 @@
 import { ref, computed } from 'vue';
 import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
+import NotificationBell from '@/Components/NotificationBell.vue';
 import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal         from '@/Components/Modal.vue';
 import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
 import InputError    from '@/Components/InputError.vue';
+import SearchableSelect from '@/Components/SearchableSelect.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 const props = defineProps({ transfers: Object, warehouses: Array, products: Array, stocks: Array });

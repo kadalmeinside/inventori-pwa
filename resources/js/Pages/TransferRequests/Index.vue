@@ -2,16 +2,19 @@
   <AppLayout title="Transfer Requests">
     <div class="page-wrap">
 
-      <div class="page-header">
+      <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
         <div>
           <p class="page-eyebrow">{{ isSuperAdmin ? 'Approval Queue' : 'My Requests' }}</p>
           <h1 class="page-title">Transfer Requests</h1>
         </div>
-        <!-- Branch Admin can create new requests -->
-        <button v-if="!isSuperAdmin" class="btn-ios btn-ios-primary" @click="openModal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
-          Request Stock
-        </button>
+        <div style="display: flex; gap: 0.5rem; align-items: center; height: 100%;">
+          <!-- Branch Admin can create new requests -->
+          <button v-if="!isSuperAdmin" class="btn-ios btn-ios-primary" @click="openModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="btn-text" style="margin-left: 0.4rem;">Request Stock</span>
+          </button>
+          <NotificationBell />
+        </div>
       </div>
 
       <!-- Info banner for Branch Admin -->
@@ -147,10 +150,11 @@
           <div class="form-grid">
             <div class="field span-2">
               <InputLabel for="req_product" value="Product" />
-              <select id="req_product" v-model="requestForm.product_id" class="input-ios" required>
-                <option disabled value="">Select product…</option>
-                <option v-for="p in products" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
-              </select>
+              <SearchableSelect
+                v-model="requestForm.product_id"
+                :options="products.map(p => ({ value: p.id, label: `${p.sku} — ${p.name}` }))"
+                placeholder="Search or select product…"
+              />
               <InputError :message="requestForm.errors.product_id" />
             </div>
             <div class="field">
@@ -270,9 +274,10 @@ import AppLayout     from '@/Layouts/AppLayout.vue';
 import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal         from '@/Components/Modal.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
-import InputError    from '@/Components/InputError.vue';
 import TextInput     from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import NotificationBell from '@/Components/NotificationBell.vue';
+import SearchableSelect from '@/Components/SearchableSelect.vue';
 
 const props = defineProps({ requests: Object, warehouses: Array, products: Array, stocks: Array });
 const page  = usePage();
