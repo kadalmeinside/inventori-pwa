@@ -110,7 +110,7 @@ watch(unread, (count) => {
 // ─── Panel toggle + fetch ────────────────────────────────────────────────────
 async function togglePanel() {
   open.value = !open.value
-  if (open.value && items.value.length === 0) {
+  if (open.value) {
     await fetchRecent()
   }
 }
@@ -118,12 +118,18 @@ async function togglePanel() {
 async function fetchRecent() {
   loading.value = true
   try {
-    const res = await fetch('/notifications?page=1', {
-      headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Inertia': '1', 'Accept': 'application/json' },
+    const res = await fetch('/notifications/recent', {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+      },
+      credentials: 'same-origin',
     })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const json = await res.json()
-    items.value = json?.props?.notifications?.data ?? []
-  } catch {
+    items.value = json?.data ?? []
+  } catch (e) {
+    console.error('[Bell] fetchRecent error:', e)
     items.value = []
   } finally {
     loading.value = false
@@ -132,12 +138,16 @@ async function fetchRecent() {
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
 async function handleItemClick(item) {
+  // Mark as read first
   if (!item.read_at) {
     await markRead(item)
   }
   open.value = false
-  if (item.url && item.url !== '/') {
-    router.visit(item.url)
+
+  // Navigate to the linked page
+  const url = item.url && item.url !== '/' ? item.url : null
+  if (url) {
+    router.visit(url)
   }
 }
 
@@ -145,7 +155,11 @@ async function markRead(item) {
   try {
     await fetch(`/notifications/${item.id}/read`, {
       method: 'PATCH',
-      headers: { 'X-CSRF-TOKEN': csrfToken(), 'X-Requested-With': 'XMLHttpRequest' },
+      headers: {
+        'X-CSRF-TOKEN': csrfToken(),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      credentials: 'same-origin',
     })
     item.read_at = new Date().toISOString()
     router.reload({ only: ['unreadNotifications'] })
@@ -157,7 +171,11 @@ async function markAllRead() {
   try {
     await fetch('/notifications/read-all', {
       method: 'PATCH',
-      headers: { 'X-CSRF-TOKEN': csrfToken(), 'X-Requested-With': 'XMLHttpRequest' },
+      headers: {
+        'X-CSRF-TOKEN': csrfToken(),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      credentials: 'same-origin',
     })
     items.value.forEach(i => { i.read_at = new Date().toISOString() })
     router.reload({ only: ['unreadNotifications'] })
@@ -170,7 +188,11 @@ async function deleteItem(item) {
   try {
     await fetch(`/notifications/${item.id}`, {
       method: 'DELETE',
-      headers: { 'X-CSRF-TOKEN': csrfToken(), 'X-Requested-With': 'XMLHttpRequest' },
+      headers: {
+        'X-CSRF-TOKEN': csrfToken(),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      credentials: 'same-origin',
     })
     items.value = items.value.filter(i => i.id !== item.id)
     router.reload({ only: ['unreadNotifications'] })

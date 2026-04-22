@@ -91,12 +91,22 @@ class StockTransferController extends Controller
             $this->service->receiveTransfer($stockTransfer, $request->user());
 
             // ─── Push Notification ke Super Admin (konfirmasi penerimaan) ─────────
-            $stockTransfer->loadMissing(['product', 'destinationWarehouse']);
+            $stockTransfer->loadMissing(['product', 'sourceWarehouse', 'destinationWarehouse']);
             $this->push->sendToSuperAdmins([
                 'title' => "🏭 Transfer Diterima",
-                'body'  => "Cabang {$stockTransfer->destinationWarehouse->name} menerima {$stockTransfer->product->name} \u00d7{$stockTransfer->quantity}.",
+                'body'  => "Cabang {$stockTransfer->destinationWarehouse->name} menerima {$stockTransfer->product->name} ×{$stockTransfer->quantity}.",
                 'url'   => '/transfers',
                 'tag'   => "transfer-received-{$stockTransfer->id}",
+                'type'  => 'success',
+            ]);
+
+            // ─── Push Notification ke Branch Source (konfirmasi pengiriman selesai) ──
+            $this->push->sendToWarehouse($stockTransfer->source_warehouse_id, [
+                'title' => "✅ Stok Berhasil Dikirim",
+                'body'  => "{$stockTransfer->destinationWarehouse->name} telah menerima {$stockTransfer->product->name} ×{$stockTransfer->quantity}.",
+                'url'   => '/transfers',
+                'tag'   => "transfer-confirmed-{$stockTransfer->id}",
+                'type'  => 'success',
             ]);
 
             return redirect()->back()->with('success', 'Transfer received. Destination stock updated.');

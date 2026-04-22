@@ -51,6 +51,7 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->group(function () {
     // ─── In-App Notifications ────────────────────────────────────────────────
     Route::get('/notifications',             [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread-count',[App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::get('/notifications/recent',      [App\Http\Controllers\NotificationController::class, 'recent'])->name('notifications.recent');
 });
 
 // ─── Write routes (20 req/menit) ─────────────────────────────────────────────

@@ -136,19 +136,38 @@ class TransferRequestController extends Controller
                 'reviewed_at'       => now(),
             ]);
 
+            // ─── Notif live (Pusher) ke branch A (requester) ─────────────────
             \App\Events\SystemNotification::dispatch(
                 'warehouse.' . $destination->id,
-                "Request stok Anda telah Disetujui (Sedang Dikirim)!",
+                "✅ Request stok Anda telah Disetujui! Stok akan dikirim dari {$source->name}.",
                 'success'
             );
 
-            // ─── Push Notification ke Branch Admin requester ──────────────────
+            // ─── Notif live (Pusher) ke branch B (source) ────────────────────
+            \App\Events\SystemNotification::dispatch(
+                'warehouse.' . $source->id,
+                "📦 Anda perlu mengirim stok ke {$destination->name} atas permintaan yang disetujui.",
+                'info'
+            );
+
             $transferRequest->loadMissing(['requester', 'product']);
+
+            // ─── Push Notification ke Branch A (requester) ───────────────────
             $this->push->sendToUser($transferRequest->requester, [
                 'title' => "✅ Request Transfer Disetujui",
-                'body'  => "Permintaan {$transferRequest->product->name} \u00d7{$transferRequest->quantity} dari {$source->name} sedang dikirim.",
+                'body'  => "Permintaan {$transferRequest->product->name} ×{$transferRequest->quantity} dari {$source->name} sedang dikirim.",
                 'url'   => '/transfer-requests',
                 'tag'   => "transfer-approved-{$transferRequest->id}",
+                'type'  => 'success',
+            ]);
+
+            // ─── Push Notification ke Branch B (source warehouse) ────────────
+            $this->push->sendToWarehouse($source->id, [
+                'title' => "📦 Permintaan Stok Masuk",
+                'body'  => "Harap kirimkan {$transferRequest->product->name} ×{$transferRequest->quantity} ke cabang {$destination->name}.",
+                'url'   => '/transfers',
+                'tag'   => "transfer-source-{$transferRequest->id}",
+                'type'  => 'info',
             ]);
 
             return redirect()->back()->with('success', 'Request approved. Transfer has been initiated.');
@@ -184,9 +203,10 @@ class TransferRequestController extends Controller
         $transferRequest->loadMissing(['requester', 'product']);
         $this->push->sendToUser($transferRequest->requester, [
             'title' => "❌ Request Transfer Ditolak",
-            'body'  => "Permintaan {$transferRequest->product->name} \u00d7{$transferRequest->quantity} tidak dapat diproses saat ini.",
+            'body'  => "Permintaan {$transferRequest->product->name} ×{$transferRequest->quantity} tidak dapat diproses saat ini.",
             'url'   => '/transfer-requests',
             'tag'   => "transfer-rejected-{$transferRequest->id}",
+            'type'  => 'error',
         ]);
 
         return redirect()->back()->with('success', 'Transfer request rejected.');

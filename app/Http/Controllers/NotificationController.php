@@ -28,6 +28,24 @@ class NotificationController extends Controller
     }
 
     /**
+     * Return 10 most recent notifications as pure JSON (for bell dropdown).
+     */
+    public function recent(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $notifications = AppNotification::where('user_id', $user->id)
+            ->latest()
+            ->limit(10)
+            ->get(['id', 'title', 'body', 'url', 'type', 'tag', 'read_at', 'created_at']);
+
+        return response()->json([
+            'data'  => $notifications,
+            'unread'=> $notifications->whereNull('read_at')->count(),
+        ]);
+    }
+
+    /**
      * Return unread count as JSON (untuk polling ringan).
      */
     public function unreadCount(Request $request): JsonResponse
