@@ -34,8 +34,8 @@
                   </span>
                 </td>
                 <td class="td-name">{{ cat.name }}</td>
-                <td class="td-mono">{{ cat.icon || '—' }}</td>
-                <td class="td-muted">{{ cat.description || '—' }}</td>
+                <td class="td-mono">{{ cat.icon || 'â' }}</td>
+                <td class="td-muted">{{ cat.description || 'â' }}</td>
                 <td class="text-center">
                   <div class="action-group">
                     <button class="action-btn action-btn--blue" @click="openModal(cat)">Edit</button>
@@ -110,7 +110,7 @@
           </div>
           <div class="field">
             <InputLabel for="description" value="Description" />
-            <textarea id="description" v-model="form.description" class="input-ios" rows="3" placeholder="Category description…" />
+            <textarea id="description" v-model="form.description" class="input-ios" rows="3" placeholder="Category descriptionâ¦" />
             <InputError :message="form.errors.description" />
           </div>
           <div class="field">
@@ -137,6 +137,7 @@
 import { ref } from 'vue';
 import { router, useForm, Link } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal         from '@/Components/Modal.vue';
 import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
@@ -162,6 +163,12 @@ const deleteCategory = (cat) => {
   if (confirm(`Delete category: ${cat.name}?`))
     router.delete(route('categories.destroy', cat.id), { preserveScroll: true });
 };
+
+
+// 250025002500 Mobile FAB
+useMobileFab([
+  { label: "Tambah Kategori", icon: "🏷️", color: "#30B0C7", action: () => openModal() },
+])
 </script>
 
 <style scoped>

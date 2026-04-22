@@ -45,7 +45,7 @@
                     {{ roleLabel(user.role) }}
                   </span>
                 </td>
-                <td class="td-muted">{{ user.warehouse?.name ?? '—' }}</td>
+                <td class="td-muted">{{ user.warehouse?.name ?? 'â' }}</td>
                 <td class="td-muted" style="font-size:0.78rem;">{{ formatDate(user.created_at) }}</td>
                 <td class="text-center">
                   <div class="action-group">
@@ -109,7 +109,7 @@
       </div>
     </div>
 
-    <!-- ─── User Modal ─────────────────────────────────────────────────────── -->
+    <!-- âââ User Modal âââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
     <Modal :show="showModal" @close="closeModal" maxWidth="md">
       <div class="modal-body">
         <div class="modal-header">
@@ -145,14 +145,14 @@
             <!-- Password -->
             <div class="field span-2">
               <InputLabel for="u-pwd" :value="isEditing ? 'New Password (leave blank to keep)' : 'Password'" />
-              <TextInput id="u-pwd" v-model="form.password" type="password" :required="!isEditing" placeholder="••••••••" />
+              <TextInput id="u-pwd" v-model="form.password" type="password" :required="!isEditing" placeholder="â¢â¢â¢â¢â¢â¢â¢â¢" />
               <InputError :message="form.errors.password" />
             </div>
 
             <!-- Password Confirmation -->
             <div class="field span-2" v-if="!isEditing || form.password">
               <InputLabel for="u-pwd-confirm" value="Confirm Password" />
-              <TextInput id="u-pwd-confirm" v-model="form.password_confirmation" type="password" :required="!isEditing" placeholder="••••••••" />
+              <TextInput id="u-pwd-confirm" v-model="form.password_confirmation" type="password" :required="!isEditing" placeholder="â¢â¢â¢â¢â¢â¢â¢â¢" />
               <InputError :message="form.errors.password_confirmation" />
             </div>
 
@@ -201,6 +201,7 @@
 import { ref, computed } from 'vue';
 import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal         from '@/Components/Modal.vue';
 import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
@@ -255,6 +256,12 @@ const deleteUser = (user) => {
   if (confirm(`Delete user "${user.name}"? This cannot be undone.`))
     router.delete(route('users.destroy', user.id), { preserveScroll: true });
 };
+
+
+// 250025002500 Mobile FAB
+useMobileFab([
+  { label: "Tambah User", icon: "👤", color: "#BF5AF2", action: () => openModal() },
+])
 </script>
 
 <style scoped>

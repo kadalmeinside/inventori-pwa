@@ -267,6 +267,7 @@
 import { ref, computed } from 'vue';
 import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal         from '@/Components/Modal.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
 import InputError    from '@/Components/InputError.vue';
@@ -335,6 +336,13 @@ const rejectReq = (req) => {
     router.patch(route('transfer-requests.reject', req.id), {}, { preserveScroll: true });
   }
 };
+
+// ─── Mobile FAB ──────────────────────────────────────────────────────────
+if (!isSuperAdmin.value) {
+  useMobileFab([
+    { label: 'Request Stock', icon: '📦', color: '#FF9500', action: openModal },
+  ])
+}
 </script>
 
 <style scoped>

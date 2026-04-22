@@ -2,7 +2,7 @@
   <AppLayout title="Product Management">
     <div class="page-wrap">
 
-      <!-- ─── Page Header ─────────────────────────────────────────────── -->
+      <!-- âââ Page Header âââââââââââââââââââââââââââââââââââââââââââââââ -->
       <div class="page-header">
         <div>
           <p class="page-header__eyebrow">Management</p>
@@ -16,7 +16,7 @@
         </button>
       </div>
 
-      <!-- ─── Glass Table Card ───────────────────────────────────────── -->
+      <!-- âââ Glass Table Card âââââââââââââââââââââââââââââââââââââââââ -->
       <div class="glass-card">
 
         <!-- Desktop Table -->
@@ -41,7 +41,7 @@
                 </td>
                 <td class="td-name">{{ product.name }}</td>
                 <td class="td-mono">{{ product.sku }}</td>
-                <td class="td-muted">{{ product.category?.name || '—' }}</td>
+                <td class="td-muted">{{ product.category?.name || 'â' }}</td>
                 <td>
                   <span class="td-mono td-white">{{ product.min_stock }}</span>
                   <span class="td-unit"> {{ product.unit }}</span>
@@ -83,7 +83,7 @@
               <div class="mobile-card__meta">
                 <span class="meta-chip">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg>
-                  {{ product.category?.name || '—' }}
+                  {{ product.category?.name || 'â' }}
                 </span>
                 <span class="meta-chip">
                   Min: <strong>{{ product.min_stock }}</strong> {{ product.unit }}
@@ -118,7 +118,7 @@
       </div>
     </div>
 
-    <!-- ─── Product Modal ──────────────────────────────────────────────── -->
+    <!-- âââ Product Modal ââââââââââââââââââââââââââââââââââââââââââââââââ -->
     <Modal :show="showModal" @close="closeModal" maxWidth="md">
       <div class="modal-body">
         <!-- Modal header -->
@@ -193,7 +193,7 @@
                 v-model="form.description"
                 class="input-ios"
                 rows="3"
-                placeholder="Optional notes about this product…"
+                placeholder="Optional notes about this productâ¦"
               />
               <InputError :message="form.errors.description" />
             </div>
@@ -205,7 +205,7 @@
                 <span class="toggle-track">
                   <span class="toggle-thumb" />
                 </span>
-                <span class="toggle-label">Active — visible to stock transactions</span>
+                <span class="toggle-label">Active â visible to stock transactions</span>
               </label>
               <InputError :message="form.errors.is_active" />
             </div>
@@ -229,6 +229,7 @@
 import { ref } from 'vue';
 import { router, useForm, Link } from '@inertiajs/vue3';
 import AppLayout      from '@/Layouts/AppLayout.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal          from '@/Components/Modal.vue';
 import TextInput      from '@/Components/TextInput.vue';
 import InputLabel     from '@/Components/InputLabel.vue';
@@ -283,17 +284,23 @@ const deleteProduct = (product) => {
     router.delete(route('products.destroy', product.id), { preserveScroll: true });
   }
 };
+
+
+// 250025002500 Mobile FAB 2500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500250025002500
+useMobileFab([
+  { label: "Tambah Produk", icon: "📦", color: "#007AFF", action: () => openModal() },
+])
 </script>
 
 <style scoped>
-/* ─── Page ───────────────────────────────────────────────────────────────── */
+/* âââ Page âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .page-wrap {
   padding: 2rem 1.25rem 5rem;
   max-width: 1100px;
   margin: 0 auto;
 }
 
-/* ─── Page Header ────────────────────────────────────────────────────────── */
+/* âââ Page Header ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .page-header {
   display: flex;
   align-items: flex-end;
@@ -323,7 +330,7 @@ const deleteProduct = (product) => {
   padding-left: 0.25rem;
 }
 
-/* ─── Glass card wrapper ─────────────────────────────────────────────────── */
+/* âââ Glass card wrapper âââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .glass-card {
   background: rgba(255, 255, 255, 0.62);
   backdrop-filter: blur(28px) saturate(180%);
@@ -337,7 +344,7 @@ const deleteProduct = (product) => {
   overflow: hidden;
 }
 
-/* ─── Table ──────────────────────────────────────────────────────────────── */
+/* âââ Table ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .table-wrap { overflow-x: auto; }
 
 .ios-table {
@@ -373,14 +380,14 @@ const deleteProduct = (product) => {
 .table-row:hover { background: rgba(0, 122, 255, 0.03); }
 .table-row:last-child td { border-bottom: none; }
 
-/* ─── Cell styles ────────────────────────────────────────────────────────── */
+/* âââ Cell styles ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .td-name  { font-weight: 600; color: rgba(0,0,0,0.80); }
 .td-mono  { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.04em; }
 .td-muted { color: rgba(0,0,0,0.40); }
 .td-white { font-weight: 700; color: rgba(0,0,0,0.75); font-family: var(--font-mono); }
 .td-unit  { font-size: 0.75rem; color: rgba(0,0,0,0.35); }
 
-/* ─── Badge ──────────────────────────────────────────────────────────────── */
+/* âââ Badge ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -404,7 +411,7 @@ const deleteProduct = (product) => {
   border-color: rgba(0, 0, 0, 0.10);
 }
 
-/* ─── Action buttons ─────────────────────────────────────────────────────── */
+/* âââ Action buttons âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .action-group {
   display: flex;
   gap: 0.5rem;
@@ -440,7 +447,7 @@ const deleteProduct = (product) => {
 
 .action-btn--full { flex: 1; text-align: center; }
 
-/* ─── Empty cell ─────────────────────────────────────────────────────────── */
+/* âââ Empty cell âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .empty-cell {
   text-align: center;
   padding: 3rem 1rem;
@@ -448,7 +455,7 @@ const deleteProduct = (product) => {
   font-size: 0.875rem;
 }
 
-/* ─── Pagination ─────────────────────────────────────────────────────────── */
+/* âââ Pagination âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .pagination {
   display: flex;
   justify-content: center;
@@ -483,7 +490,7 @@ const deleteProduct = (product) => {
   border-color: transparent;
 }
 
-/* ─── Mobile list ────────────────────────────────────────────────────────── */
+/* âââ Mobile list ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .mobile-list {
   display: flex;
   flex-direction: column;
@@ -540,7 +547,7 @@ const deleteProduct = (product) => {
   margin-top: 0.25rem;
 }
 
-/* ─── Modal body ─────────────────────────────────────────────────────────── */
+/* âââ Modal body âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .modal-body { padding: 1.5rem; }
 
 .modal-header {
@@ -596,7 +603,7 @@ const deleteProduct = (product) => {
 }
 .modal-close:hover { background: rgba(0,0,0,0.10); color: rgba(0,0,0,0.70); }
 
-/* ─── Form ───────────────────────────────────────────────────────────────── */
+/* âââ Form âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .modal-form { display: flex; flex-direction: column; gap: 0.875rem; }
 
 .form-grid {
@@ -608,7 +615,7 @@ const deleteProduct = (product) => {
 .field { display: flex; flex-direction: column; gap: 0.3rem; }
 .span-2 { grid-column: 1 / -1; }
 
-/* ─── Toggle ─────────────────────────────────────────────────────────────── */
+/* âââ Toggle âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .toggle-row {
   display: flex;
   align-items: center;
@@ -656,7 +663,7 @@ const deleteProduct = (product) => {
   color: rgba(0, 0, 0, 0.60);
 }
 
-/* ─── Modal actions ──────────────────────────────────────────────────────── */
+/* âââ Modal actions ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .modal-actions {
   display: flex;
   justify-content: flex-end;

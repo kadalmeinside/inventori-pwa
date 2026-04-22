@@ -185,6 +185,9 @@
     <!-- ─── Global Mobile Nav (always present on all pages) ──────────────── -->
     <MobileNav @logout="showLogoutConfirm = true" />
 
+    <!-- ─── Global Mobile FAB (konteks per-halaman) ─────────────────────── -->
+    <MobileFab />
+
     <!-- ─── Logout Confirmation Modal ─────────────────────────────────────── -->
     <Modal :show="showLogoutConfirm" @close="showLogoutConfirm = false" maxWidth="sm">
       <div class="p-6">
@@ -224,6 +227,7 @@ import InstallPrompt          from '@/Components/InstallPrompt.vue'
 import Modal                  from '@/Components/Modal.vue'
 import PushNotificationPrompt from '@/Components/PushNotificationPrompt.vue'
 import NotificationBell       from '@/Components/NotificationBell.vue'
+import MobileFab              from '@/Components/MobileFab.vue'
 
 defineProps({
   title: { type: String, default: 'Inventori IMS' },

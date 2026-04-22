@@ -242,6 +242,7 @@
 import { ref, computed } from 'vue';
 import { useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout    from '@/Layouts/AppLayout.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal        from '@/Components/Modal.vue';
 import InputLabel   from '@/Components/InputLabel.vue';
 import InputError   from '@/Components/InputError.vue';
@@ -286,6 +287,13 @@ const openModal = () => {
 
 const closeModal = () => { showModal.value = false; form.reset(); };
 const submitStockOut = () => form.post(route('stock-outs.store'), { preserveScroll: true, onSuccess: closeModal });
+
+// ─── Mobile FAB ──────────────────────────────────────────────────────────
+if (!isSuperAdmin.value) {
+  useMobileFab([
+    { label: 'Record Stock Out', icon: '↓️', color: '#FF3B30', action: openModal },
+  ])
+}
 </script>
 
 <style scoped>

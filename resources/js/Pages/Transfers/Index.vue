@@ -260,6 +260,7 @@
 import { ref, computed } from 'vue';
 import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal         from '@/Components/Modal.vue';
 import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
@@ -323,6 +324,13 @@ const submitReceive = () => {
     router.patch(route('transfers.receive', activeTransfer.value.id), {}, { preserveScroll: true, onSuccess: closeConfirmModal });
   }
 };
+
+// ─── Mobile FAB ──────────────────────────────────────────────────────────
+if (!isSuperAdmin.value) {
+  useMobileFab([
+    { label: 'Initiate Transfer', icon: '⇄', color: '#007AFF', action: openInitiateModal },
+  ])
+}
 </script>
 
 <style scoped>

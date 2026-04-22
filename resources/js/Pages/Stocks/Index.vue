@@ -257,6 +257,7 @@ import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
 import InputError    from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 
 const props = defineProps({ stocks: Object, filters: Object, warehouses: Array, products: Array });
 const page  = usePage();
@@ -303,6 +304,13 @@ const openStockInModal = () => {
 };
 const closeInModal = () => { showInModal.value = false; inForm.reset(); };
 const submitStockIn = () => inForm.post(route('stocks.in'), { preserveScroll: true, onSuccess: closeInModal });
+
+// ─── Mobile FAB ──────────────────────────────────────────────────────────
+if (page.props.auth.user.role !== 'super_admin') {
+  useMobileFab([
+    { label: 'Receive Stock', icon: '⬆️', color: '#34C759', action: openStockInModal },
+  ])
+}
 
 let echoChannel;
 onMounted(() => {

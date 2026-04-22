@@ -35,7 +35,7 @@
                 </td>
                 <td class="td-name">{{ wh.name }}</td>
                 <td class="td-mono">{{ wh.code }}</td>
-                <td class="td-muted">{{ wh.address || '—' }}</td>
+                <td class="td-muted">{{ wh.address || 'â' }}</td>
                 <td class="text-center">
                   <div class="action-group">
                     <button class="action-btn action-btn--blue" @click="openModal(wh)">Edit</button>
@@ -110,7 +110,7 @@
           </div>
           <div class="field">
             <InputLabel for="address" value="Location / Address" />
-            <textarea id="address" v-model="form.address" class="input-ios" rows="3" placeholder="Full address…" />
+            <textarea id="address" v-model="form.address" class="input-ios" rows="3" placeholder="Full addressâ¦" />
             <InputError :message="form.errors.address" />
           </div>
           <div class="field">
@@ -137,6 +137,7 @@
 import { ref } from 'vue';
 import { router, useForm, Link } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
+import { useMobileFab } from '@/Composables/useMobileFab.js';
 import Modal         from '@/Components/Modal.vue';
 import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
@@ -162,6 +163,12 @@ const deleteWarehouse = (wh) => {
   if (confirm(`Delete warehouse: ${wh.name}?`))
     router.delete(route('warehouses.destroy', wh.id), { preserveScroll: true });
 };
+
+
+// 250025002500 Mobile FAB
+useMobileFab([
+  { label: "Tambah Gudang", icon: "🏭", color: "#30B0C7", action: () => openModal() },
+])
 </script>
 
 <style scoped>
