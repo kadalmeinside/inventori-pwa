@@ -249,7 +249,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout     from '@/Layouts/AppLayout.vue';
 import Modal         from '@/Components/Modal.vue';
@@ -257,7 +257,8 @@ import TextInput     from '@/Components/TextInput.vue';
 import InputLabel    from '@/Components/InputLabel.vue';
 import InputError    from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { useMobileFab } from '@/Composables/useMobileFab.js';
+import { useMobileFab }      from '@/Composables/useMobileFab.js';
+import { useTopbarActions }  from '@/Composables/useTopbarActions.js';
 
 const props = defineProps({ stocks: Object, filters: Object, warehouses: Array, products: Array });
 const page  = usePage();
@@ -309,6 +310,19 @@ const submitStockIn = () => inForm.post(route('stocks.in'), { preserveScroll: tr
 if (page.props.auth.user.role !== 'super_admin') {
   useMobileFab([
     { label: 'Receive Stock', icon: '⬆️', color: '#34C759', action: openStockInModal },
+  ])
+}
+
+// ─── Topbar Actions (tombol sebelah bell di mobile) ───────────────────────
+if (page.props.auth.user.role === 'super_admin') {
+  const refreshSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>`
+  useTopbarActions([
+    {
+      label: 'Global Summary',
+      icon:  refreshSvg,
+      active: computed(() => viewMode.value === 'global'),
+      action: toggleGlobalView,
+    },
   ])
 }
 

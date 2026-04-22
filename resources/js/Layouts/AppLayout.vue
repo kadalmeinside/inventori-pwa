@@ -145,8 +145,18 @@
       </div>
     </aside>
 
-    <!-- ─── Floating Notification Bell (top-right, always visible) ────────── -->
+    <!-- ─── Floating Notification Bell + Page Topbar Actions ─────────────── -->
     <div class="topbar-bell">
+      <!-- Tombol yang didaftarkan halaman (sebelah kiri bell) -->
+      <button
+        v-for="(act, i) in topbarActions"
+        :key="i"
+        class="topbar-action-btn"
+        :class="{ 'topbar-action-btn--active': act.active?.value ?? act.active }"
+        @click="act.action"
+        :aria-label="act.label"
+        v-html="act.icon"
+      />
       <NotificationBell />
     </div>
 
@@ -228,6 +238,9 @@ import Modal                  from '@/Components/Modal.vue'
 import PushNotificationPrompt from '@/Components/PushNotificationPrompt.vue'
 import NotificationBell       from '@/Components/NotificationBell.vue'
 import MobileFab              from '@/Components/MobileFab.vue'
+import { useTopbarActionsState } from '@/Composables/useTopbarActions.js'
+
+const topbarActions = useTopbarActionsState()
 
 defineProps({
   title: { type: String, default: 'Inventori IMS' },
@@ -557,18 +570,50 @@ const userRole = computed(() => {
   min-width: 0;
 }
 
-/* ─── Floating Bell (top-right corner, semua perangkat) ────────────────── */
+/* ─── Floating Bell + Topbar Actions (top-right, semua perangkat) ─────── */
 .topbar-bell {
   position: fixed;
-  /* Desktop: sejajar dengan page-header yang punya padding-top ~2rem */
   top: 2rem;
   right: max(1rem, env(safe-area-inset-right, 1rem));
   z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;           /* jarak antar tombol */
 }
 
-/* Mobile: lebih ke atas mendekati status bar */
+/* Mobile: naik ke dekat status bar */
 @media (max-width: 767px) {
   .topbar-bell { top: 0.65rem; right: 0.75rem; }
+}
+
+/* Tombol aksi halaman di topbar (sebelah kiri bell) */
+.topbar-action-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+.topbar-action-btn:hover,
+.topbar-action-btn--active {
+  background: rgba(0,122,255,0.12);
+  color: #007AFF;
+  transform: scale(1.06);
+}
+@media (max-width: 767px) {
+  .topbar-action-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.625rem;
+  }
 }
 
 /* ─── Toast (portal ke body; root tidak menangkap klik di luar toast) ───── */
@@ -658,8 +703,10 @@ const userRole = computed(() => {
 /* ─── Mobile: hide tombol asli (diganti FAB) + jaga search bar full width ─ */
 @media (max-width: 767px) {
   /* Primary action buttons → diganti FAB */
+  /* Toggle glass buttons → pindah ke topbar via useTopbarActions */
   .page-header .btn-ios-primary,
-  .page-header .btn-receive {
+  .page-header .btn-receive,
+  .page-header .btn-glass-toggle {
     display: none !important;
   }
 
