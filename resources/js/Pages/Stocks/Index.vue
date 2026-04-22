@@ -30,7 +30,7 @@
             </template>
           </div>
           <template v-if="page.props.auth.user.role === 'super_admin'">
-            <button class="btn-ios btn-ios-glass" @click="toggleGlobalView" :class="{ 'btn-active': viewMode === 'global' }">
+            <button class="btn-ios btn-ios-glass btn-glass-toggle" @click="toggleGlobalView" :class="{ 'btn-active': viewMode === 'global' }">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
               <span class="btn-text">Global Summary</span>
             </button>
@@ -393,6 +393,29 @@ onUnmounted(() => {
   .header-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
   .btn-receive { width: auto; height: auto; padding: 0.625rem 1.25rem; border-radius: var(--radius-full); align-self: auto; box-shadow: 0 4px 16px rgba(0, 122, 255, 0.35); }
   .btn-text { max-width: 120px; opacity: 1; font-size: 0.875rem; margin-left: 0.4rem; }
+}
+
+/* Global Summary toggle: ikon bulat di mobile, teks penuh di desktop */
+.btn-glass-toggle {
+  grid-area: button; /* Mobile grid placement */
+  width: 2.375rem;
+  height: 2.375rem;
+  padding: 0;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .btn-glass-toggle {
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+  }
+  .btn-glass-toggle .btn-text { max-width: 120px; opacity: 1; font-size: 0.875rem; margin-left: 0.4rem; }
 }
 
 /* Search */

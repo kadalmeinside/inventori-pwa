@@ -1,27 +1,44 @@
-import { ref, onUnmounted } from 'vue'
-
 /**
- * Global reactive state — shared across all component instances.
- * Each page registers its own FAB actions via useMobileFab([...]).
- */
-const _fabActions = ref([])
-
-/**
- * Called by each page to register mobile FAB actions.
- * Actions are cleared automatically when the page unmounts.
+ * useMobileFab — Composable untuk FAB (Floating Action Button) mobile.
  *
- * @param {Array<{ label: string, icon: string, action: Function, color?: string }>} actions
+ * PROBLEM: Race condition saat navigasi Inertia:
+ *   1. Halaman B di-mount → setup() memanggil useMobileFab([actionB])
+ *   2. Halaman A di-unmount → onUnmounted membersihkan _fabActions = []
+ *   → FAB kosong!
+ *
+ * SOLUTION: Token mechanism.
+ *   Setiap kali useMobileFab dipanggil, token baru dibuat.
+ *   onBeforeUnmount hanya membersihkan jika token masih milik-nya
+ *   (artinya belum ada halaman lain yang mendaftar actions baru).
+ */
+import { ref, onBeforeUnmount } from 'vue'
+
+/** Global reactive state — shared across all component instances */
+const _fabActions = ref([])
+let _currentToken = 0
+
+/**
+ * Dipanggil oleh setiap halaman yang ingin mendaftarkan aksi FAB.
+ * Actions di-clear secara otomatis ketika komponen di-unmount,
+ * KECUALI komponen lain sudah mendaftarkan actions baru terlebih dahulu.
+ *
+ * @param {Array<{ label: string, icon: string, color: string, action: Function }>} actions
  */
 export function useMobileFab(actions = []) {
+    // Naikkan token → "kepemilikan" berpindah ke halaman ini
+    const myToken = ++_currentToken
     _fabActions.value = actions
 
-    onUnmounted(() => {
-        _fabActions.value = []
+    onBeforeUnmount(() => {
+        // Hanya bersihkan jika tidak ada halaman lain yang sudah mendaftar
+        if (_currentToken === myToken) {
+            _fabActions.value = []
+        }
     })
 }
 
 /**
- * Used by MobileFab.vue to read the current actions.
+ * Digunakan oleh MobileFab.vue untuk membaca actions saat ini.
  */
 export function useFabActions() {
     return _fabActions

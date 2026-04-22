@@ -644,26 +644,30 @@ const userRole = computed(() => {
   Global styles (non-scoped): berlaku untuk semua halaman anak.
   Tujuan:
   1. Sembunyikan tombol aksi halaman di mobile (digantikan FAB)
-  2. Beri padding-right pada .page-header di semua ukuran layar agar
-     tombol tidak tertimpa bell yang fixed di top-right
+  2. Beri padding-right pada .page-header di desktop agar tidak tertimpa bell
+  3. Di mobile: hanya judul yang perlu geser kiri — search bar tetap full width
 -->
 <style>
-/* ─── Semua ukuran: beri ruang agar tidak tertimpa bell fixed ───────────── */
-.page-header {
-  /* Bell: 2.25rem + 1rem margin kanan + 0.25rem gap = 3.5rem */
-  padding-right: 3.5rem;
+/* ─── Desktop: beri ruang agar button tidak tertimpa bell ───────────────── */
+@media (min-width: 768px) {
+  .page-header {
+    padding-right: 3.5rem;
+  }
 }
 
-/* ─── Mobile only: sembunyikan tombol header asli (diganti FAB) ─────────── */
+/* ─── Mobile: hide tombol asli (diganti FAB) + jaga search bar full width ─ */
 @media (max-width: 767px) {
-  /* Primary action buttons di page-header → diganti FAB */
+  /* Primary action buttons → diganti FAB */
   .page-header .btn-ios-primary,
   .page-header .btn-receive {
     display: none !important;
   }
 
-  /* Kurangi padding-right di mobile (bell lebih kecil) */
-  .page-header {
+  /*
+    Hanya .header-titles yang perlu padding-right (agar teks judul tidak
+    ke bawah bell). .search-bar-group di grid-area "search" tetap full width.
+  */
+  .page-header .header-titles {
     padding-right: 2.75rem;
   }
 }
