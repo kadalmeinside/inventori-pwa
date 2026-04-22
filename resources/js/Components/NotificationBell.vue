@@ -245,15 +245,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   position: absolute;
   top: calc(100% + 0.75rem);
   right: 0;
-  width: min(360px, 92vw);
-  background: rgba(255,255,255,0.96);
+  width: min(360px, calc(100vw - 2rem));
+  background: rgba(255,255,255,0.97);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255,255,255,0.9);
   border-radius: 1.25rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.10);
   overflow: hidden;
   z-index: 9999;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
 }
 
 .notif-panel__header {

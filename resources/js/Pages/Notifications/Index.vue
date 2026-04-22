@@ -216,8 +216,8 @@ function timeAgo(dateStr) {
 
 /* Header */
 .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; gap: 1rem; flex-wrap: wrap; }
-.page-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,0,0,0.35); margin: 0 0 0.2rem; }
-.page-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.04em; color: rgba(0,0,0,0.85); margin: 0; line-height: 1; }
+.page-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,0,0,0.35); margin: 0 0 0.2rem; padding-left: 0.25rem; }
+.page-title { font-size: 1.375rem; font-weight: 800; letter-spacing: -0.03em; color: rgba(0,0,0,0.85); margin: 0; line-height: 1; padding-left: 0.25rem; }
 
 .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 

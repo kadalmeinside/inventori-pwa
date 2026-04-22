@@ -310,15 +310,17 @@ const deleteProduct = (product) => {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.35);
   margin: 0 0 0.2rem;
+  padding-left: 0.25rem;
 }
 
 .page-header__title {
-  font-size: 1.75rem;
+  font-size: 1.375rem;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   color: rgba(0, 0, 0, 0.85);
   margin: 0;
   line-height: 1;
+  padding-left: 0.25rem;
 }
 
 /* ─── Glass card wrapper ─────────────────────────────────────────────────── */

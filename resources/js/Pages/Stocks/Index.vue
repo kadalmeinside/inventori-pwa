@@ -360,11 +360,11 @@ onUnmounted(() => {
 .header-titles { grid-area: titles; display: flex; flex-direction: column; justify-content: flex-end; }
 .header-actions { display: contents; } /* Children placed by grid areas on mobile */
 
-.page-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,0,0,0.35); margin: 0 0 0.2rem; }
-.page-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.04em; color: rgba(0,0,0,0.85); margin: 0; line-height: 1; }
+.page-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,0,0,0.35); margin: 0 0 0.2rem; padding-left: 0.25rem; }
+.page-title { font-size: 1.375rem; font-weight: 800; letter-spacing: -0.03em; color: rgba(0,0,0,0.85); margin: 0; line-height: 1; padding-left: 0.25rem; }
 
 @media (max-width: 767px) {
-  .page-title { font-size: 1.375rem; letter-spacing: -0.03em; }
+  .page-title { font-size: 1.125rem; letter-spacing: -0.02em; }
   .page-eyebrow { font-size: 0.65rem; }
 }
 

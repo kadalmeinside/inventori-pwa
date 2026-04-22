@@ -340,8 +340,8 @@ const rejectReq = (req) => {
 <style scoped>
 .page-wrap { padding: 2rem 1.25rem 5rem; max-width: 1100px; margin: 0 auto; }
 .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
-.page-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,0,0,0.35); margin: 0 0 0.2rem; }
-.page-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.04em; color: rgba(0,0,0,0.85); margin: 0; line-height: 1; }
+.page-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,0,0,0.35); margin: 0 0 0.2rem; padding-left: 0.25rem; }
+.page-title { font-size: 1.375rem; font-weight: 800; letter-spacing: -0.03em; color: rgba(0,0,0,0.85); margin: 0; line-height: 1; padding-left: 0.25rem; }
 
 .info-banner { display: flex; align-items: flex-start; gap: 0.625rem; background: rgba(0,122,255,0.08); border: 1px solid rgba(0,122,255,0.18); border-radius: 0.875rem; padding: 0.875rem 1rem; margin-bottom: 1.25rem; font-size: 0.8125rem; color: rgba(0,70,200,0.85); line-height: 1.5; }
 .info-banner svg { flex-shrink: 0; margin-top: 1px; }

@@ -260,8 +260,8 @@ const deleteUser = (user) => {
 <style scoped>
 .page-wrap { padding: 2rem 1.25rem 5rem; max-width: 1100px; margin: 0 auto; }
 .page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap; }
-.page-eyebrow { font-size:0.7rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(0,0,0,0.35); margin:0 0 0.2rem; }
-.page-title { font-size:1.75rem; font-weight:800; letter-spacing:-0.04em; color:rgba(0,0,0,0.85); margin:0; line-height:1; }
+.page-eyebrow { font-size:0.7rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(0,0,0,0.35); margin:0 0 0.2rem; padding-left: 0.25rem; }
+.page-title { font-size:1.375rem; font-weight:800; letter-spacing:-0.03em; color:rgba(0,0,0,0.85); margin:0; line-height:1; padding-left: 0.25rem; }
 
 .glass-card { background:rgba(255,255,255,0.62); backdrop-filter:blur(28px) saturate(180%); -webkit-backdrop-filter:blur(28px) saturate(180%); border:1px solid rgba(255,255,255,0.82); border-radius:1.5rem; box-shadow:0 8px 40px rgba(0,80,200,0.10), inset 0 1px 0 rgba(255,255,255,0.95); overflow:hidden; }
 

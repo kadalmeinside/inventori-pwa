@@ -133,8 +133,6 @@
               <p class="sidebar__user-name">{{ $page.props.auth.user.name }}</p>
               <p class="sidebar__user-role">{{ userRole }}</p>
             </Link>
-            <!-- Notification Bell (desktop sidebar) -->
-            <NotificationBell />
             <button @click="showLogoutConfirm = true" class="sidebar__logout" title="Logout">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
@@ -146,6 +144,11 @@
         </div>
       </div>
     </aside>
+
+    <!-- ─── Floating Notification Bell (top-right, always visible) ────────── -->
+    <div class="topbar-bell">
+      <NotificationBell />
+    </div>
 
     <!-- ─── Main Content ──────────────────────────────────────────────────── -->
     <main id="main-content" class="layout-main">
@@ -548,6 +551,14 @@ const userRole = computed(() => {
 .layout-main {
   flex: 1;
   min-width: 0;
+}
+
+/* ─── Floating Bell (top-right corner, always visible) ─────────────────── */
+.topbar-bell {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top, 1rem));
+  right: max(1rem, env(safe-area-inset-right, 1rem));
+  z-index: 300;
 }
 
 /* ─── Toast (portal ke body; root tidak menangkap klik di luar toast) ───── */
