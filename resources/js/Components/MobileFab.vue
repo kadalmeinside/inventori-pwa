@@ -82,22 +82,24 @@ function handleAction(item) {
 }
 
 /* Saat More sheet terbuka — sembunyikan FAB sepenuhnya */
-/* Transition harus ada di state NORMAL agar animasi muncul kembali juga smooth */
-.mobile-fab-root--hidden {
+.mobile-fab-root--hidden .fab-btn,
+.mobile-fab-root--hidden .fab-actions {
   opacity: 0 !important;
   pointer-events: none !important;
   transform: scale(0.85) !important;
 }
 
 @media (max-width: 767px) {
+  /*
+    PENTING: .mobile-fab-root TIDAK boleh punya transform/filter/perspective
+    karena akan merusak position:fixed pada child (.fab-btn, .fab-actions).
+    CSS spec: elemen dengan transform menjadi containing block untuk fixed descendants.
+  */
   .mobile-fab-root {
     display: block;
     pointer-events: none;
-    /* Transition di sini → berlaku untuk KEDUA arah (masuk & keluar) */
-    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    opacity: 1;
-    transform: scale(1);
   }
+
   /* Elemen aktif di dalam tetap bisa diklik */
   .fab-btn,
   .fab-actions,
@@ -123,9 +125,11 @@ function handleAction(item) {
     justify-content: center;
     box-shadow: 0 6px 24px rgba(0, 122, 255, 0.45), 0 2px 8px rgba(0,0,0,0.18);
     cursor: pointer;
+    /* Gabungkan semua transisi: interaktif + hide/show saat sheet buka */
     transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
                 box-shadow 0.2s ease,
-                background 0.2s ease;
+                background 0.2s ease,
+                opacity 0.2s ease;
     -webkit-tap-highlight-color: transparent;
   }
 
