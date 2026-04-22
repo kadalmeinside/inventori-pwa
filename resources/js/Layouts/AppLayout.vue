@@ -560,12 +560,13 @@ const userRole = computed(() => {
 /* ─── Floating Bell (top-right corner, semua perangkat) ────────────────── */
 .topbar-bell {
   position: fixed;
-  top: max(1rem, env(safe-area-inset-top, 1rem));
+  /* Desktop: sejajar dengan page-header yang punya padding-top ~2rem */
+  top: 2rem;
   right: max(1rem, env(safe-area-inset-right, 1rem));
   z-index: 300;
 }
 
-/* Di mobile bell lebih kecil agar proporsional */
+/* Mobile: lebih ke atas mendekati status bar */
 @media (max-width: 767px) {
   .topbar-bell { top: 0.65rem; right: 0.75rem; }
 }
@@ -641,13 +642,29 @@ const userRole = computed(() => {
 
 <!--
   Global styles (non-scoped): berlaku untuk semua halaman anak.
-  Tujuan: Mencegah tombol aksi di .page-header tertimpa bell yang fixed di top-right.
+  Tujuan:
+  1. Sembunyikan tombol aksi halaman di mobile (digantikan FAB)
+  2. Beri padding-right pada .page-header di semua ukuran layar agar
+     tombol tidak tertimpa bell yang fixed di top-right
 -->
 <style>
+/* ─── Semua ukuran: beri ruang agar tidak tertimpa bell fixed ───────────── */
+.page-header {
+  /* Bell: 2.25rem + 1rem margin kanan + 0.25rem gap = 3.5rem */
+  padding-right: 3.5rem;
+}
+
+/* ─── Mobile only: sembunyikan tombol header asli (diganti FAB) ─────────── */
 @media (max-width: 767px) {
-  /* Dorong kanan page-header agar tidak tertimpa bell (lebar bell ~2.25rem + gap 0.75rem = 3rem) */
+  /* Primary action buttons di page-header → diganti FAB */
+  .page-header .btn-ios-primary,
+  .page-header .btn-receive {
+    display: none !important;
+  }
+
+  /* Kurangi padding-right di mobile (bell lebih kecil) */
   .page-header {
-    padding-right: 3rem;
+    padding-right: 2.75rem;
   }
 }
 </style>

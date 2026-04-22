@@ -426,7 +426,7 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.20);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 199;
+  z-index: 400;
 }
 
 .backdrop-enter-active, .backdrop-leave-active { transition: opacity 0.28s ease; }
@@ -438,7 +438,7 @@ onUnmounted(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 200;
+  z-index: 450;
   padding: 0.75rem 1.25rem calc(env(safe-area-inset-bottom, 0px) + 6rem) 1.25rem;
   background: rgba(248, 250, 252, 0.96);
   backdrop-filter: blur(40px) saturate(200%);

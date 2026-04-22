@@ -1,14 +1,18 @@
 <template>
-  <!-- Only shown on mobile -->
   <Teleport to="body">
+    <!--
+      FAB hanya render jika:
+      - Ada actions terdaftar oleh halaman
+      - Viewport mobile (CSS @media mengatur display)
+    -->
     <div v-if="actions.length > 0" class="mobile-fab-root">
 
-      <!-- Backdrop (dismiss menu) -->
+      <!-- Backdrop FAB (dismiss menu) -->
       <Transition name="fab-backdrop">
         <div v-if="open" class="fab-backdrop" @click="open = false" />
       </Transition>
 
-      <!-- Action items (expand upward from FAB) -->
+      <!-- Action items — expand ke atas -->
       <Transition name="fab-actions">
         <div v-if="open" class="fab-actions">
           <button
@@ -48,21 +52,26 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useFabActions } from '@/Composables/useMobileFab.js'
+import { router } from '@inertiajs/vue3'
 
 const actions = useFabActions()
 const open    = ref(false)
 
-// Auto-close saat actions berubah (halaman berganti)
-watch(actions, () => { open.value = false })
+// Tutup menu saat actions berubah (navigasi halaman)
+watch(actions, () => { open.value = false }, { deep: true })
+
+// Tutup menu saat navigasi Inertia terjadi
+router.on('start', () => { open.value = false })
 
 function handleAction(item) {
   open.value = false
-  item.action?.()
+  // Delay kecil agar animasi tutup terlihat dulu
+  setTimeout(() => { item.action?.() }, 80)
 }
 </script>
 
 <style scoped>
-/* Hanya tampil di mobile */
+/* Root container — default hidden, hanya tampil di mobile */
 .mobile-fab-root {
   display: none;
 }
@@ -70,15 +79,23 @@ function handleAction(item) {
 @media (max-width: 767px) {
   .mobile-fab-root {
     display: block;
+    /* Pastikan tidak ada interaksi saat tidak aktif */
+    pointer-events: none;
+  }
+  /* Elemen aktif di dalam tetap bisa diklik */
+  .fab-btn,
+  .fab-actions,
+  .fab-backdrop {
+    pointer-events: auto;
   }
 
   /* ─── Main FAB button ──────────────────────────────────────────────────── */
   .fab-btn {
     position: fixed;
     right: 1.25rem;
-    /* Di atas mobile nav (nav ≈ 4.5rem + safe-area) */
+    /* Di atas mobile nav bar (nav ≈ 4.5rem + safe-area) */
     bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-    z-index: 250;
+    z-index: 150;   /* Di atas nav (100), di bawah More sheet (450) */
     width: 3.25rem;
     height: 3.25rem;
     border-radius: 999px;
@@ -96,29 +113,25 @@ function handleAction(item) {
     -webkit-tap-highlight-color: transparent;
   }
 
-  .fab-btn:active {
-    transform: scale(0.92);
-  }
+  .fab-btn:active { transform: scale(0.92); }
 
   .fab-btn__icon {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  /* Rotate + to × when open */
+  /* + berputar jadi × saat terbuka */
   .fab-btn--open {
     background: linear-gradient(145deg, #FF3B30, #C0392B);
     box-shadow: 0 6px 24px rgba(255, 59, 48, 0.45), 0 2px 8px rgba(0,0,0,0.18);
   }
-  .fab-btn--open .fab-btn__icon {
-    transform: rotate(45deg);
-  }
+  .fab-btn--open .fab-btn__icon { transform: rotate(45deg); }
 
   /* ─── Action items ─────────────────────────────────────────────────────── */
   .fab-actions {
     position: fixed;
     right: 1.25rem;
     bottom: calc(5rem + 3.75rem + env(safe-area-inset-bottom, 0px));
-    z-index: 250;
+    z-index: 150;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -135,8 +148,6 @@ function handleAction(item) {
     padding: 0.6rem 1rem 0.6rem 0.875rem;
     box-shadow: 0 4px 20px rgba(0,0,0,0.14), 0 1px 6px rgba(0,0,0,0.10);
     cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 600;
     color: rgba(0,0,0,0.85);
     white-space: nowrap;
     transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -144,17 +155,13 @@ function handleAction(item) {
     -webkit-tap-highlight-color: transparent;
     font-family: inherit;
   }
-
-  .fab-action-item:active {
-    transform: scale(0.95);
-  }
+  .fab-action-item:active { transform: scale(0.95); }
 
   .fab-action-item__label {
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
-
   .fab-action-item__icon {
     width: 2rem;
     height: 2rem;
@@ -168,13 +175,14 @@ function handleAction(item) {
     line-height: 1;
   }
 
-  /* ─── Backdrop ─────────────────────────────────────────────────────────── */
+  /* ─── Backdrop FAB ─────────────────────────────────────────────────────── */
   .fab-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 240;
-    background: rgba(0, 0, 0, 0.25);
+    z-index: 140;
+    background: rgba(0,0,0,0.20);
     backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
   }
 
   /* ─── Transitions ──────────────────────────────────────────────────────── */
