@@ -219,7 +219,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <style scoped>
-.notif-bell-wrap { position: relative; }
+.notif-bell-wrap {
+  position: relative;
+  display: inline-flex;  /* Bukan block — tidak ambil full width */
+  flex-shrink: 0;        /* Tidak mengecil di dalam flex parent */
+  align-items: center;
+}
 
 .notif-bell {
   position: relative;

@@ -4,7 +4,7 @@
       <!-- ─── Header ──────────────────────────────────────────────────── -->
       <header class="dashboard__header">
         <div>
-          <p class="dashboard__greeting">{{ greeting }}, {{ firstName }} 👋</p>
+          <p class="dashboard__greeting">{{ greeting }}, {{ firstName }} </p>
           <h1 class="dashboard__title">Inventory Dashboard</h1>
           <p class="dashboard__subtitle" v-if="warehouseName">
             <span class="warehouse-chip">

@@ -577,13 +577,20 @@ const userRole = computed(() => {
   right: max(1rem, env(safe-area-inset-right, 1rem));
   z-index: 300;
   display: flex;
+  flex-direction: row;       /* EKSPLISIT: horizontal */
   align-items: center;
-  gap: 0.4rem;           /* jarak antar tombol */
+  gap: 0.4rem;
+  flex-wrap: nowrap;         /* Tidak boleh wrap ke bawah */
 }
 
 /* Mobile: naik ke dekat status bar */
 @media (max-width: 767px) {
   .topbar-bell { top: 0.65rem; right: 0.75rem; }
+}
+
+/* Pastikan anak-anak NotificationBell tidak block-level dalam flex */
+.topbar-bell > * {
+  flex-shrink: 0;
 }
 
 /* Tombol aksi halaman di topbar (sebelah kiri bell) */
