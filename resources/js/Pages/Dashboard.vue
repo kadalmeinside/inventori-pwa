@@ -13,13 +13,6 @@
             </span>
           </p>
         </div>
-        <button class="icon-btn" title="Refresh" @click="$inertia.reload()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 4v6h-6"/>
-            <path d="M1 20v-6h6"/>
-            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-          </svg>
-        </button>
       </header>
 
       <!-- ─── KPI Cards ─────────────────────────────────────────────── -->
@@ -110,10 +103,11 @@
 
 <script setup>
 import { computed } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
-import AppLayout      from '@/Layouts/AppLayout.vue'
+import { Link, usePage, router } from '@inertiajs/vue3'
+import AppLayout from '@/Layouts/AppLayout.vue'
 import StockAlertCard from '@/Components/StockAlertCard.vue'
 import { useStockAlerts } from '@/Composables/useStockAlerts'
+import { useTopbarActions } from '@/Composables/useTopbarActions'
 
 const page = usePage()
 const { criticalAlerts, warningAlerts, alertCount } = useStockAlerts()
@@ -127,6 +121,15 @@ const props = defineProps({
 
 const firstName      = computed(() => page.props.auth.user.name.split(' ')[0])
 const warehouseName  = computed(() => page.props.auth.user.warehouse?.name ?? null)
+
+// Register topbar actions
+useTopbarActions([
+  {
+    label: 'Refresh',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>`,
+    action: () => router.reload()
+  }
+]);
 
 const greeting = computed(() => {
   const h = new Date().getHours()
@@ -197,30 +200,6 @@ const greeting = computed(() => {
   color: #5856D6;
   font-weight: 600;
 }
-
-.icon-btn {
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 0.875rem;
-  color: rgba(0, 0, 0, 0.45);
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
-}
-.icon-btn svg { width: 1.125rem; height: 1.125rem; }
-.icon-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: rgba(0, 0, 0, 0.70);
-  transform: scale(1.05);
-}
-.icon-btn:active { transform: scale(0.95); }
 
 /* ─── KPI Grid ───────────────────────────────────────────────────────────── */
 .kpi-grid {
