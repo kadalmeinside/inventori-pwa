@@ -202,7 +202,7 @@ onBeforeUnmount(() => {
   top: calc(100% + 4px);
   left: 0;
   width: 100%;
-  max-height: 200px;
+  max-height: 250px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -226,6 +226,9 @@ onBeforeUnmount(() => {
   border-radius: 0.5rem;
   cursor: pointer;
   transition: background 0.1s;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.3;
 }
 
 .ss-option:hover, .ss-option--highlighted {
