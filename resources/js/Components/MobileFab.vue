@@ -23,7 +23,7 @@
             @click="handleAction(item)"
           >
             <span class="fab-action-item__label">{{ item.label }}</span>
-            <span class="fab-action-item__icon">{{ item.icon }}</span>
+            <span class="fab-action-item__icon" v-html="item.icon"></span>
           </button>
         </div>
       </Transition>

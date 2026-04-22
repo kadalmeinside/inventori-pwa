@@ -328,7 +328,12 @@ const submitReceive = () => {
 // ─── Mobile FAB ──────────────────────────────────────────────────────────
 if (!isSuperAdmin.value) {
   useMobileFab([
-    { label: 'Initiate Transfer', icon: '⇄', color: '#007AFF', action: openInitiateModal },
+    {
+      label: 'Initiate Transfer',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M5 12h14"/><path d="M15 6l6 6-6 6"/><path d="M19 12H5"/><path d="M9 18l-6-6 6-6"/></svg>`,
+      color: '#007AFF',
+      action: openInitiateModal,
+    },
   ])
 }
 </script>

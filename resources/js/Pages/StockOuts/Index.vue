@@ -291,7 +291,12 @@ const submitStockOut = () => form.post(route('stock-outs.store'), { preserveScro
 // ─── Mobile FAB ──────────────────────────────────────────────────────────
 if (!isSuperAdmin.value) {
   useMobileFab([
-    { label: 'Record Stock Out', icon: '↓️', color: '#FF3B30', action: openModal },
+    {
+      label: 'Record Stock Out',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 5v14"/><polyline points="19 12 12 19 5 12"/></svg>`,
+      color: '#FF3B30',
+      action: openModal,
+    },
   ])
 }
 </script>

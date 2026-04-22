@@ -309,7 +309,12 @@ const submitStockIn = () => inForm.post(route('stocks.in'), { preserveScroll: tr
 // ─── Mobile FAB ──────────────────────────────────────────────────────────
 if (page.props.auth.user.role !== 'super_admin') {
   useMobileFab([
-    { label: 'Receive Stock', icon: '⬆️', color: '#34C759', action: openStockInModal },
+    {
+      label: 'Receive Stock',
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+      color: '#34C759',
+      action: openStockInModal,
+    },
   ])
 }
 
