@@ -242,6 +242,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   transform: scale(1.06);
 }
 
+/* Mobile: bell lebih kecil */
+@media (max-width: 767px) {
+  .notif-bell {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.625rem;
+  }
+}
+
 /* Badge */
 .notif-bell__badge {
   position: absolute;

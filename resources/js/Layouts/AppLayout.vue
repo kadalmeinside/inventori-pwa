@@ -553,7 +553,7 @@ const userRole = computed(() => {
   min-width: 0;
 }
 
-/* ─── Floating Bell (top-right corner, desktop only) ───────────────────── */
+/* ─── Floating Bell (top-right corner, semua perangkat) ────────────────── */
 .topbar-bell {
   position: fixed;
   top: max(1rem, env(safe-area-inset-top, 1rem));
@@ -561,9 +561,9 @@ const userRole = computed(() => {
   z-index: 300;
 }
 
-/* Bell hanya muncul di desktop — di mobile, akses via MobileNav More sheet */
+/* Di mobile bell lebih kecil agar proporsional */
 @media (max-width: 767px) {
-  .topbar-bell { display: none; }
+  .topbar-bell { top: 0.65rem; right: 0.75rem; }
 }
 
 /* ─── Toast (portal ke body; root tidak menangkap klik di luar toast) ───── */
@@ -632,5 +632,18 @@ const userRole = computed(() => {
 .toast-leave-to {
   opacity: 0;
   transform: translateY(-0.5rem) scale(0.97);
+}
+</style>
+
+<!--
+  Global styles (non-scoped): berlaku untuk semua halaman anak.
+  Tujuan: Mencegah tombol aksi di .page-header tertimpa bell yang fixed di top-right.
+-->
+<style>
+@media (max-width: 767px) {
+  /* Dorong kanan page-header agar tidak tertimpa bell (lebar bell ~2.25rem + gap 0.75rem = 3rem) */
+  .page-header {
+    padding-right: 3rem;
+  }
 }
 </style>
