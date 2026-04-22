@@ -206,9 +206,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
+import { isSheetOpen } from '@/Composables/useMobileSheet.js';
 
 const emit = defineEmits(['logout']);
 
@@ -218,8 +219,14 @@ const isHidden     = ref(false);
 const isSuperAdmin = computed(() => page.props.auth?.user?.role === 'super_admin');
 const unread       = computed(() => page.props.unreadNotifications ?? 0);
 
-const toggleSheet = () => { showSheet.value = !showSheet.value; };
-const closeSheet  = () => { showSheet.value = false; };
+const toggleSheet = () => {
+  showSheet.value = !showSheet.value;
+  isSheetOpen.value = showSheet.value;  // sync ke shared state
+};
+const closeSheet  = () => {
+  showSheet.value  = false;
+  isSheetOpen.value = false;
+};
 const cur = (routeName) => { try { return route().current(routeName); } catch { return false; } };
 
 

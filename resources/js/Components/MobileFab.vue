@@ -5,7 +5,7 @@
       - Ada actions terdaftar oleh halaman
       - Viewport mobile (CSS @media mengatur display)
     -->
-    <div v-if="actions.length > 0" class="mobile-fab-root">
+    <div v-if="actions.length > 0" class="mobile-fab-root" :class="{ 'mobile-fab-root--hidden': sheetOpen }">
 
       <!-- Backdrop FAB (dismiss menu) -->
       <Transition name="fab-backdrop">
@@ -53,12 +53,17 @@
 import { ref, watch } from 'vue'
 import { useFabActions } from '@/Composables/useMobileFab.js'
 import { router } from '@inertiajs/vue3'
+import { isSheetOpen } from '@/Composables/useMobileSheet.js'
 
-const actions = useFabActions()
-const open    = ref(false)
+const actions   = useFabActions()
+const open      = ref(false)
+const sheetOpen = isSheetOpen
 
 // Tutup menu saat actions berubah (navigasi halaman)
 watch(actions, () => { open.value = false }, { deep: true })
+
+// Tutup FAB menu saat More sheet dibuka
+watch(sheetOpen, (val) => { if (val) open.value = false })
 
 // Tutup menu saat navigasi Inertia terjadi
 router.on('start', () => { open.value = false })
@@ -74,6 +79,14 @@ function handleAction(item) {
 /* Root container — default hidden, hanya tampil di mobile */
 .mobile-fab-root {
   display: none;
+}
+
+/* Saat More sheet terbuka — sembunyikan FAB sepenuhnya */
+.mobile-fab-root--hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(0.85);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 @media (max-width: 767px) {
