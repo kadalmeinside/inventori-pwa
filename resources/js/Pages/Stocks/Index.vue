@@ -415,27 +415,16 @@ onUnmounted(() => {
 }
 
 /* Global Summary toggle: ikon bulat di mobile, teks penuh di desktop */
-.btn-glass-toggle {
-  grid-area: button; /* Mobile grid placement */
-  width: 2.375rem;
-  height: 2.375rem;
-  padding: 0;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: flex-end;
-  flex-shrink: 0;
+/* btn-glass-toggle dan btn-receive DISEMBUNYIKAN dari page header:
+   - Desktop: sudah ada di topbar-bell via useTopbarActions
+   - Mobile: sudah ada di topbar-bell via useTopbarActions
+   - btn-receive Mobile: sudah digantikan FAB
+   Semua viewport → display:none dari page header */
+.btn-glass-toggle,
+.btn-receive {
+  display: none !important;
 }
-@media (min-width: 768px) {
-  .btn-glass-toggle {
-    width: auto;
-    height: auto;
-    padding: 0.5rem 1rem;
-    border-radius: 0.75rem;
-  }
-  .btn-glass-toggle .btn-text { max-width: 120px; opacity: 1; font-size: 0.875rem; margin-left: 0.4rem; }
-}
+
 
 /* Search */
 .search-bar-group { grid-area: search; display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
