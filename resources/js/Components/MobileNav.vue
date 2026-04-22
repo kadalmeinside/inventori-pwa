@@ -219,18 +219,13 @@ const isHidden     = ref(false);
 const isSuperAdmin = computed(() => page.props.auth?.user?.role === 'super_admin');
 const unread       = computed(() => page.props.unreadNotifications ?? 0);
 
-const toggleSheet = () => {
-  showSheet.value = !showSheet.value;
-  isSheetOpen.value = showSheet.value;  // sync ke shared state
-};
-const closeSheet  = () => {
-  showSheet.value  = false;
-  isSheetOpen.value = false;
-};
+const toggleSheet = () => { showSheet.value = !showSheet.value; };
+const closeSheet  = () => { showSheet.value = false; };
 const cur = (routeName) => { try { return route().current(routeName); } catch { return false; } };
 
-
-
+// Sync showSheet → isSheetOpen untuk SEMUA jalur penutupan
+// (X button, backdrop, goTo, dll)
+watch(showSheet, (val) => { isSheetOpen.value = val; });
 const goTo = (url) => {
   showSheet.value = false;
   setTimeout(() => router.get(url), 150);

@@ -82,18 +82,21 @@ function handleAction(item) {
 }
 
 /* Saat More sheet terbuka — sembunyikan FAB sepenuhnya */
+/* Transition harus ada di state NORMAL agar animasi muncul kembali juga smooth */
 .mobile-fab-root--hidden {
   opacity: 0 !important;
   pointer-events: none !important;
-  transform: scale(0.85);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: scale(0.85) !important;
 }
 
 @media (max-width: 767px) {
   .mobile-fab-root {
     display: block;
-    /* Pastikan tidak ada interaksi saat tidak aktif */
     pointer-events: none;
+    /* Transition di sini → berlaku untuk KEDUA arah (masuk & keluar) */
+    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 1;
+    transform: scale(1);
   }
   /* Elemen aktif di dalam tetap bisa diklik */
   .fab-btn,
