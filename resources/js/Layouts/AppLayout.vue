@@ -553,12 +553,17 @@ const userRole = computed(() => {
   min-width: 0;
 }
 
-/* ─── Floating Bell (top-right corner, always visible) ─────────────────── */
+/* ─── Floating Bell (top-right corner, desktop only) ───────────────────── */
 .topbar-bell {
   position: fixed;
   top: max(1rem, env(safe-area-inset-top, 1rem));
   right: max(1rem, env(safe-area-inset-right, 1rem));
   z-index: 300;
+}
+
+/* Bell hanya muncul di desktop — di mobile, akses via MobileNav More sheet */
+@media (max-width: 767px) {
+  .topbar-bell { display: none; }
 }
 
 /* ─── Toast (portal ke body; root tidak menangkap klik di luar toast) ───── */

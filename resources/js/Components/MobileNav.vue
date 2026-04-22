@@ -67,10 +67,11 @@
         <span class="nav-tab__label">Stock Out</span>
       </Link>
 
-      <!-- More -->
+      <!-- More (badge if unread notifications) -->
       <button class="nav-tab" :class="{ 'nav-tab--active': showSheet }" @click="toggleSheet" aria-label="More" :aria-expanded="showSheet">
-        <div class="nav-tab__icon">
+        <div class="nav-tab__icon" style="position:relative;">
           <div class="more-dots"><span /><span /><span /></div>
+          <span v-if="unread > 0" class="nav-tab__notif-badge">{{ unread > 9 ? '9+' : unread }}</span>
         </div>
         <span class="nav-tab__label">More</span>
       </button>
@@ -166,6 +167,18 @@
           <span class="sheet-item__label">Reports</span>
         </a>
 
+        <!-- Notifications (all roles) -->
+        <a href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('notifications.index') }" @click.prevent="goTo(route('notifications.index'))" style="position:relative;">
+          <div class="sheet-item__icon sheet-item__icon--indigo" style="position:relative;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span v-if="unread > 0" class="sheet-notif-badge">{{ unread > 9 ? '9+' : unread }}</span>
+          </div>
+          <span class="sheet-item__label">Notifikasi</span>
+        </a>
+
         <!-- Profile -->
         <a href="#" class="sheet-item" :class="{ 'sheet-item--active': cur('profile.edit') }" @click.prevent="goTo(route('profile.edit'))">
           <div class="sheet-item__icon sheet-item__icon--blue">
@@ -203,6 +216,7 @@ const page         = usePage();
 const showSheet    = ref(false);
 const isHidden     = ref(false);
 const isSuperAdmin = computed(() => page.props.auth?.user?.role === 'super_admin');
+const unread       = computed(() => page.props.unreadNotifications ?? 0);
 
 const toggleSheet = () => { showSheet.value = !showSheet.value; };
 const closeSheet  = () => { showSheet.value = false; };
@@ -535,12 +549,53 @@ onUnmounted(() => {
 .sheet-item:active .sheet-item__icon { transform: scale(0.88); }
 .sheet-item:hover  .sheet-item__icon { transform: scale(1.08); }
 
-.sheet-item__icon--orange { background: linear-gradient(145deg, #FF9500, #E07800); color: white; box-shadow: 0 4px 12px rgba(255,149,0,0.35); }
-.sheet-item__icon--teal   { background: linear-gradient(145deg, #30B0C7, #1A8FA8); color: white; box-shadow: 0 4px 12px rgba(48,176,199,0.35); }
-.sheet-item__icon--purple { background: linear-gradient(145deg, #BF5AF2, #9B40D4); color: white; box-shadow: 0 4px 12px rgba(175,82,222,0.35); }
-.sheet-item__icon--blue   { background: linear-gradient(145deg, #007AFF, #0055D4); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.35); }
-.sheet-item__icon--amber  { background: linear-gradient(145deg, #FFB340, #F59300); color: white; box-shadow: 0 4px 12px rgba(245,147,0,0.35); }
-.sheet-item__icon--pink   { background: linear-gradient(145deg, #FF2D55, #D11035); color: white; box-shadow: 0 4px 12px rgba(255,45,85,0.35); }
+.sheet-item__icon--orange  { background: linear-gradient(145deg, #FF9500, #E07800); color: white; box-shadow: 0 4px 12px rgba(255,149,0,0.35); }
+.sheet-item__icon--teal    { background: linear-gradient(145deg, #30B0C7, #1A8FA8); color: white; box-shadow: 0 4px 12px rgba(48,176,199,0.35); }
+.sheet-item__icon--purple  { background: linear-gradient(145deg, #BF5AF2, #9B40D4); color: white; box-shadow: 0 4px 12px rgba(175,82,222,0.35); }
+.sheet-item__icon--blue    { background: linear-gradient(145deg, #007AFF, #0055D4); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.35); }
+.sheet-item__icon--amber   { background: linear-gradient(145deg, #FFB340, #F59300); color: white; box-shadow: 0 4px 12px rgba(245,147,0,0.35); }
+.sheet-item__icon--pink    { background: linear-gradient(145deg, #FF2D55, #D11035); color: white; box-shadow: 0 4px 12px rgba(255,45,85,0.35); }
+.sheet-item__icon--indigo  { background: linear-gradient(145deg, #5856D6, #3634A3); color: white; box-shadow: 0 4px 12px rgba(88,86,214,0.35); }
+
+/* Badge pada icon Notifikasi di sheet */
+.sheet-notif-badge {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.2rem;
+  border-radius: 999px;
+  background: #FF3B30;
+  color: white;
+  font-size: 0.58rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(248, 250, 252, 0.96);
+  line-height: 1;
+}
+
+/* Badge pada tab More di bottom nav */
+.nav-tab__notif-badge {
+  position: absolute;
+  top: -0.3rem;
+  right: -0.3rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.15rem;
+  border-radius: 999px;
+  background: #FF3B30;
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid white;
+  line-height: 1;
+}
 
 .sheet-item__label {
   font-size: 0.72rem;
