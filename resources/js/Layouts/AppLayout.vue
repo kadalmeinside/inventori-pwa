@@ -159,19 +159,24 @@
         <Transition name="toast">
           <div v-if="liveToast" class="toast" :class="'toast--' + liveToast.type" role="alert">
             <span class="toast__icon">{{ liveToast.type === 'success' ? '✅' : (liveToast.type === 'error' ? '❌' : '🔔') }}</span>
-            {{ liveToast.message }}
+            <span class="toast__message">{{ liveToast.message }}</span>
+            <button @click="closeToast('live')" class="toast__close">&times;</button>
           </div>
         </Transition>
 
         <!-- ─── Flash Toast (from server redirect) ────────────────────────────── -->
         <Transition name="toast">
           <div v-if="!liveToast && flash.success" class="toast toast--success" role="alert">
-            <span class="toast__icon">✅</span> {{ flash.success }}
+            <span class="toast__icon">✅</span>
+            <span class="toast__message">{{ flash.success }}</span>
+            <button @click="closeToast('success')" class="toast__close">&times;</button>
           </div>
         </Transition>
         <Transition name="toast">
           <div v-if="!liveToast && flash.error" class="toast toast--error" role="alert">
-            <span class="toast__icon">❌</span> {{ flash.error }}
+            <span class="toast__icon">❌</span>
+            <span class="toast__message">{{ flash.error }}</span>
+            <button @click="closeToast('error')" class="toast__close">&times;</button>
           </div>
         </Transition>
       </div>
@@ -256,6 +261,12 @@ onUnmounted(() => {
 
 const confirmLogout = () => {
   router.delete(route('logout'))
+}
+
+const closeToast = (type) => {
+  if (type === 'live') liveToast.value = null;
+  if (type === 'success') page.props.flash.success = null;
+  if (type === 'error') page.props.flash.error = null;
 }
 
 const navItems = [
@@ -607,6 +618,21 @@ const userRole = computed(() => {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+.toast__message { flex: 1; min-width: 0; }
+.toast__close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.4;
+  padding: 0 0.25rem;
+  margin-left: 0.25rem;
+  transition: opacity 0.2s;
+}
+.toast__close:hover { opacity: 1; }
 
 .toast--success { border-left: 3px solid var(--ios-green); }
 .toast--error   { border-left: 3px solid var(--ios-red); }

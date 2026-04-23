@@ -45,7 +45,7 @@
                     {{ roleLabel(user.role) }}
                   </span>
                 </td>
-                <td class="td-muted">{{ user.warehouse?.name ?? 'â' }}</td>
+                <td class="td-muted">{{ user.warehouse?.name ?? '-' }}</td>
                 <td class="td-muted" style="font-size:0.78rem;">{{ formatDate(user.created_at) }}</td>
                 <td class="text-center">
                   <div class="action-group">
