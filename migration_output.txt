@@ -1,0 +1,24 @@
+PHP Warning:  PHP Startup: Unable to load dynamic library 'mbstring' (tried: /usr/local/lib/php/pecl/20230831/mbstring (dlopen(/usr/local/lib/php/pecl/20230831/mbstring, 0x0009): tried: '/usr/local/lib/php/pecl/20230831/mbstring' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/usr/local/lib/php/pecl/20230831/mbstring' (no such file), '/usr/local/lib/php/pecl/20230831/mbstring' (no such file)), /usr/local/lib/php/pecl/20230831/mbstring.so (dlopen(/usr/local/lib/php/pecl/20230831/mbstring.so, 0x0009): tried: '/usr/local/lib/php/pecl/20230831/mbstring.so' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/usr/local/lib/php/pecl/20230831/mbstring.so' (no such file), '/usr/local/lib/php/pecl/20230831/mbstring.so' (no such file))) in Unknown on line 0
+
+Warning: PHP Startup: Unable to load dynamic library 'mbstring' (tried: /usr/local/lib/php/pecl/20230831/mbstring (dlopen(/usr/local/lib/php/pecl/20230831/mbstring, 0x0009): tried: '/usr/local/lib/php/pecl/20230831/mbstring' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/usr/local/lib/php/pecl/20230831/mbstring' (no such file), '/usr/local/lib/php/pecl/20230831/mbstring' (no such file)), /usr/local/lib/php/pecl/20230831/mbstring.so (dlopen(/usr/local/lib/php/pecl/20230831/mbstring.so, 0x0009): tried: '/usr/local/lib/php/pecl/20230831/mbstring.so' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/usr/local/lib/php/pecl/20230831/mbstring.so' (no such file), '/usr/local/lib/php/pecl/20230831/mbstring.so' (no such file))) in Unknown on line 0
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[HY000] [2002] Operation not permitted (Connection: mysql, Host: 127.0.0.1, Port: 8889, Database: inventori_pwa, SQL: select exists (select 1 from information_schema.tables where table_schema = schema() and table_name = 'migrations' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:841
+    837▕             $exceptionType = ($isUniqueConstraintError = $this->isUniqueConstraintError($e))
+    838▕                 ? UniqueConstraintViolationException::class
+    839▕                 : QueryException::class;
+    840▕ 
+  ➜ 841▕             $exception = new $exceptionType(
+    842▕                 $this->getNameWithReadWriteType(),
+    843▕                 $query,
+    844▕                 $this->prepareBindings($bindings),
+    845▕                 $e,
+
+      [2m+39 vendor frames [22m
+
+  40  artisan:16
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+

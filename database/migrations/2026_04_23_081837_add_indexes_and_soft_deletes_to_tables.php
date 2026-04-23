@@ -11,32 +11,41 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Soft Deletes
-        Schema::table('users', function (Blueprint $table) {
-            $table->softDeletes();
-        });
-        Schema::table('warehouses', function (Blueprint $table) {
-            $table->softDeletes();
-        });
-        Schema::table('products', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        // 1. Soft Deletes (warehouses and products already have it in their migrations)
+        if (!Schema::hasColumn('users', 'deleted_at')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
 
-        // 2. Indexes for Optimization
-        Schema::table('inventory_logs', function (Blueprint $table) {
-            $table->index(['warehouse_id', 'created_at']);
-        });
-        Schema::table('stock_entries', function (Blueprint $table) {
-            $table->index(['warehouse_id', 'product_id']);
-        });
-        Schema::table('stock_transfers', function (Blueprint $table) {
-            $table->index(['destination_warehouse_id', 'status']);
-            $table->index(['source_warehouse_id', 'status']);
-        });
-        Schema::table('transfer_requests', function (Blueprint $table) {
-            $table->index(['to_warehouse_id', 'status']);
-            $table->index(['from_warehouse_id', 'status']);
-        });
+        // 2. Indexes for Optimization (Idempotent)
+        $tablesAndIndexes = [
+            'inventory_logs' => [['warehouse_id', 'created_at']],
+            'stock_entries' => [['warehouse_id', 'product_id']],
+            'stock_transfers' => [
+                ['destination_warehouse_id', 'status'],
+                ['source_warehouse_id', 'status']
+            ],
+            'transfer_requests' => [
+                ['to_warehouse_id', 'status'],
+                ['from_warehouse_id', 'status']
+            ],
+        ];
+
+        foreach ($tablesAndIndexes as $tableName => $indexes) {
+            foreach ($indexes as $indexColumns) {
+                try {
+                    Schema::table($tableName, function (Blueprint $table) use ($indexColumns) {
+                        $table->index($indexColumns);
+                    });
+                } catch (\Exception $e) {
+                    // Ignore duplicate key errors (1061)
+                    if (!str_contains($e->getMessage(), '1061 Duplicate key name')) {
+                        throw $e;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -59,12 +68,6 @@ return new class extends Migration
             $table->dropIndex(['warehouse_id', 'created_at']);
         });
 
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
-        Schema::table('warehouses', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
         Schema::table('users', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });
