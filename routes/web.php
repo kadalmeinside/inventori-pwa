@@ -65,8 +65,8 @@ Route::middleware(['auth', 'verified', 'throttle:20,1'])->group(function () {
     Route::delete('/push-subscriptions', [App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.destroy');
 
     // ─── Notification actions ────────────────────────────────────────────────
-    Route::patch('/notifications/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
     Route::patch('/notifications/read-all',            [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::patch('/notifications/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('/notifications/{notification}',     [App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::delete('/notifications',                    [App\Http\Controllers\NotificationController::class, 'clearRead'])->name('notifications.clear');
 

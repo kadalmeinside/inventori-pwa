@@ -31,33 +31,38 @@ class DashboardController extends Controller
             ->select('stock_entries.*')
             ->get();
 
-        // ─── KPI Stats ────────────────────────────────────────────────────
-        $totalProducts = StockEntry::when(
-                !$user->isSuperAdmin(),
-                fn ($q) => $q->where('warehouse_id', $user->warehouse_id)
-            )->count();
+        // ─── KPI Stats (Cached for 5 minutes) ─────────────────────────────
+        $cacheKey = $user->isSuperAdmin() ? 'dashboard_stats_superadmin' : "dashboard_stats_wh_{$user->warehouse_id}";
+        $stats = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($user) {
+            $totalProducts = StockEntry::when(
+                    !$user->isSuperAdmin(),
+                    fn ($q) => $q->where('warehouse_id', $user->warehouse_id)
+                )->count();
 
-        $inTransit = StockTransfer::where('status', TransferStatus::InTransit->value)
-            ->when(
-                !$user->isSuperAdmin(),
-                fn ($q) => $q
-                    ->where('source_warehouse_id', $user->warehouse_id)
-                    ->orWhere('destination_warehouse_id', $user->warehouse_id)
-            )->sum('quantity');
+            $inTransit = StockTransfer::where('status', TransferStatus::InTransit->value)
+                ->when(
+                    !$user->isSuperAdmin(),
+                    fn ($q) => $q
+                        ->where('source_warehouse_id', $user->warehouse_id)
+                        ->orWhere('destination_warehouse_id', $user->warehouse_id)
+                )->sum('quantity');
 
-        $pendingApprovals = StockOut::where('status', StockOutStatus::Pending->value)
-            ->when(
-                !$user->isSuperAdmin(),
-                fn ($q) => $q->where('warehouse_id', $user->warehouse_id)
-            )->count();
+            $pendingApprovals = StockOut::where('status', StockOutStatus::Pending->value)
+                ->when(
+                    !$user->isSuperAdmin(),
+                    fn ($q) => $q->where('warehouse_id', $user->warehouse_id)
+                )->count();
 
-        return Inertia::render('Dashboard', [
-            'stockAlerts' => $stockAlerts,
-            'stats'       => [
+            return [
                 'totalProducts'    => $totalProducts,
                 'inTransit'        => (int) $inTransit,
                 'pendingApprovals' => $pendingApprovals,
-            ],
+            ];
+        });
+
+        return Inertia::render('Dashboard', [
+            'stockAlerts' => $stockAlerts,
+            'stats'       => $stats,
         ]);
     }
 }

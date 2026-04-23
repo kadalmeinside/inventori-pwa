@@ -45,6 +45,9 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error'   => $request->session()->get('error'),
             ],
+            'unreadNotifications' => $request->user() 
+                ? \App\Models\AppNotification::where('user_id', $request->user()->id)->unread()->count() 
+                : 0,
             'vapidPublicKey' => config('webpush.vapid.public_key', ''),
         ];
     }
